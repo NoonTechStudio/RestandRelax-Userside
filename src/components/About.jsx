@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Users, MapPin, Sparkles } from 'lucide-react';
 
 // Use a placeholder image path until the actual image is added to your project
-import aboutImage from '../assets/Images/AboutBG.jpg'; 
+import aboutImage from '../assets/Images/weddingdestination.jpg'; 
 
 // --- Styled Components ---
 

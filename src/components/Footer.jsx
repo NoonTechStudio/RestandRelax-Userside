@@ -4,6 +4,16 @@ import { Facebook, Instagram, MapPin, Phone, Mail } from 'lucide-react';
 
 import Logo from '../assets/Images/PLogo.png';
 
+import Doc1 from '../assets/Images/PrivacyPolicy.pdf';
+import Doc2 from '../assets/Images/Terms&Conditions.pdf';
+
+
+
+
+const PRIVACY_POLICY_URL = Doc1;
+const TERMS_CONDITIONS_URL = Doc2;
+// -----------------------------------------------------------------------------------
+
 // Sample locations to populate the footer
 const footerLocations = [
   { name: "Misty-Wood", slug: "misty-wood" },
@@ -32,7 +42,7 @@ const Footer = () => {
             {/* Social Media Icons */}
             <div className="flex space-x-4 pt-2">
               <a 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/RestnRelaxbaroda" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 aria-label="Facebook"
@@ -41,7 +51,7 @@ const Footer = () => {
                 <Facebook className="w-5 h-5" />
               </a>
               <a 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/restnrelax.events/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 aria-label="Instagram"
@@ -145,12 +155,39 @@ const Footer = () => {
           </div>
           
         </div>
+        <div className='mt-12 pt-8 border-t border-gray-200'>
+          {/* Mobile: Stacked layout, Desktop: Flex layout */}
+          <div className='flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0 text-center md:text-left'>
+            {/* Copyright Section */}
+            <p className='text-xs text-gray-500'>
+               © {currentYear} Rest & Relax Properties. All rights reserved.
+            </p> 
+            
+            {/* Terms & Conditions section */}
+            <div className='flex justify-center space-x-4 text-xs text-gray-600'>
+              <a 
+                href={PRIVACY_POLICY_URL} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className='hover:text-[#008DDA] font-medium transition-colors duration-300'
+              >
+                Privacy Policy
+              </a>
+              <a 
+                href={TERMS_CONDITIONS_URL} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className='hover:text-[#008DDA] font-medium transition-colors duration-300'
+              >
+                Terms & Conditions
+              </a>
+            </div>
 
-        {/* Copyright Section */}
-        <div className="mt-12 pt-8 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-500">
-            © {currentYear} Rest & Relax Properties. All rights reserved.
-          </p>
+            {/* Designed By */}
+            <p className='text-xs text-gray-500'>
+              Designed by <a href="https://www.noontechstudio.com" target="_blank" rel="noopener noreferrer" className='hover:text-[#008DDA]'>Noon Tech Studio</a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

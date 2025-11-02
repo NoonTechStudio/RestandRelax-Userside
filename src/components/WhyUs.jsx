@@ -1,7 +1,7 @@
 import React from 'react';
 import { Quote } from 'lucide-react';
 
-import OwnerImg from '../assets/Images/owner.png';
+import OwnerImg from '../assets/Images/familygathering.jpg';
 const TestimonialSection = () => {
   return (
     <section className="py-20 sm:py-28 bg-gradient-to-b from-white to-gray-50">

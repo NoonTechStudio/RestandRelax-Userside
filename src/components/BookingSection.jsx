@@ -10,6 +10,10 @@ const bookingSteps = [
   { number: "04", title: "Pay token amount for confirmation", description: "Secure your reservation instantly" }
 ];
 
+const handleRoutingToLocation = () => {
+  window.location.href = '/locations'
+}
+
 const BookingMadeEasy = () => {
   return (
     <section className="py-12 sm:py-20 lg:py-28 bg-gradient-to-br from-[#f8faf9] to-white"> {/* Adjusted vertical padding */}
@@ -50,7 +54,9 @@ const BookingMadeEasy = () => {
             </div>
 
             <div className="pt-4 sm:pt-6">
-              <button className="inline-flex items-center gap-2 px-8 py-3 text-base sm:px-10 sm:py-4 sm:text-lg font-semibold rounded-xl text-white bg-[#008DDA] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"> {/* Responsive CTA button size */}
+              <button 
+              onClick={handleRoutingToLocation}
+              className="inline-flex items-center gap-2 px-8 py-3 text-base sm:px-10 sm:py-4 sm:text-lg font-semibold rounded-xl text-white bg-[#008DDA] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"> {/* Responsive CTA button size */}
                 Start Booking Now
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>

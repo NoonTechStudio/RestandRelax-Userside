@@ -7,6 +7,7 @@ import Locations from '../components/Locations';
 import BookingDemo from '../components/BookingSection';
 import WhyUs from '../components/WhyUs';
 import Footer from '../components/Footer';
+import PartnerWithUs from '../components/PartnerWithUs';
 
 function Home() {
   return (
@@ -18,7 +19,9 @@ function Home() {
         <Locations />
         <BookingDemo />
         <WhyUs />
+        <PartnerWithUs />
         < Footer />
+        
     </div>
   )
 }

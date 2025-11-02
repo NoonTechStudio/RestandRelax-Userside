@@ -480,6 +480,10 @@ const Events = () => {
     }, 5000);
   };
 
+  const handleRedirectToLocations = () => {
+    window.location.href = '/locations'
+  }
+
   const duplicatedEvents = [...events, ...events, ...events];
   const cardWidth = 300 + 24;
   const translateX = isManualNav ? -(currentIndex * cardWidth) : 0;
@@ -591,8 +595,10 @@ const Events = () => {
                                 <FeatureTag key={fIndex}>{feature}</FeatureTag>
                             ))}
                         </PropertyFeatures>
-                        <ViewDetailsButton>
-                        View Details & Book
+                        <ViewDetailsButton
+                        onClick={handleRedirectToLocations}
+                        >
+                        View Details
                         </ViewDetailsButton>
                     </PropertyCard>
                 ))

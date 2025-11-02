@@ -22,29 +22,33 @@ const PROPERTY_LOCATIONS = [
   {
     id: 1,
     name: "Misty-Wood Villa",
-    location: "15 Km from Vadodara",
-    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11946.336450410793!2d73.17855734898734!3d22.28585465551275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fc442e39196b7%3A0x6715f5a89326f658!2sMisty%20Wood!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    location: "Diwalipura, Dabhoi Road",
+    // UPDATED MAP URL
+    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3693.0629884371865!2d73.29837647613684!3d22.23768877973174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fdc989be5e723%3A0xf4ac77a9ed7d296d!2sMisty%20Woods%20Farmhouse%20Project!5e0!3m2!1sen!2sin!4v1761723037377!5m2!1sen!2sin",
     image: "https://placehold.co/400x250/008DDA/ffffff?text=Misty-Wood",
   },
   {
     id: 2,
     name: "Riverfront Resort",
     location: "Savli-Timba Road",
-    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11946.336450410793!2d73.17855734898734!3d22.28585465551275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fc442e39196b7%3A0x6715f5a89326f658!2sRiverfront!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    // UPDATED MAP URL
+    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d117925.81945491585!2d73.14816604459718!3d22.534859375438554!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e31d4b9728a65%3A0x39bf673e47e47365!2sBhagyalakshmi%20Riverfront!5e0!3m2!1sen!2sin!4v1761723182135!5m2!1sen!2sin",
     image: "https://placehold.co/400x250/008DDA/ffffff?text=Riverfront",
   },
   {
     id: 3,
-    name: "Ambawadi Getaway",
-    location: "Near Vadodara",
-    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11946.336450410793!2d73.17855734898734!3d22.28585465551275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fc442e39196b7%3A0x6715f5a89326f658!2sAmbawadi!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    name: "Ambawadi Resort",
+    location: "Hetampura, Dabhoi Road",
+    // UPDATED MAP URL
+    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3693.4094347383657!2d73.27569507613656!3d22.224538979741116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fdb531761dd0f%3A0x840179dacde376ce!2sAambawadi%20Resort!5e0!3m2!1sen!2sin!4v1761723255017!5m2!1sen!2sin",
     image: "https://placehold.co/400x250/008DDA/ffffff?text=Ambawadi",
   },
   {
     id: 4,
-    name: "Swarg - Bunglow No. 14",
-    location: "Exclusive Private Area",
-    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11946.336450410793!2d73.17855734898734!3d22.28585465551275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fc442e39196b7%3A0x6715f5a89326f658!2sSwarg%20Bunglow!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    name: "Swarg Maru Gaam",
+    location: "Ranu Road, Padra",
+    // UPDATED MAP URL
+    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3694.284949018628!2d73.05938137613568!3d22.191274779765187!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395fb881aaaaaaab%3A0xbb4914236aa29892!2sSwarg%20Maru%20Gam%20Health%20Resort!5e0!3m2!1sen!2sin!4v1761723063799!5m2!1sen!2sin",
     image: "https://placehold.co/400x250/008DDA/ffffff?text=Swarg",
   },
 ];

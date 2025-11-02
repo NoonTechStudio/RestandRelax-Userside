@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../assets/Images/PLogo.png';
 import { Menu, X } from 'lucide-react'; 
 
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,40 +21,35 @@ function Navbar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleBookNow = () => {
+    navigate('/locations');
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out">
-      <div className={`container mx-auto px-4 sm:px-6 py-3 flex items-center transition-all duration-300 ${
-        isScrolled ? 'justify-center' : 'justify-between'
+      <div className={`container mx-auto px-4 sm:px-6 flex items-center justify-between transition-all duration-300 ${
+        isScrolled ? 'py-3' : 'py-4 mt-2'
       }`}>
         
-        {/* Logo */}
-        {!isScrolled && (
-          <div className="flex items-center">
-            <Link to="/" className="text-3xl font-bold text-black">
-              <img
-                className="w-28 sm:w-32 md:w-36 h-auto" 
-                src={Logo}
-                alt="Rest & Relax logo"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            </Link>
-          </div>
-        )}
+        {/* Logo - Hidden when scrolled with smooth animation */}
+        <div className={`flex items-center transition-all duration-500 ease-in-out ${
+          isScrolled ? 'opacity-0 -translate-x-8 pointer-events-none' : 'opacity-100 translate-x-0'
+        }`}>
+          <Link to="/" className="text-3xl font-bold text-black">
+            <img
+              className="w-28 sm:w-32 md:w-36 h-auto" 
+              src={Logo}
+              alt="Rest & Relax logo"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </Link>
+        </div>
 
-        {/* Mobile Menu Button (Hamburger) */}
-        <button 
-          className="md:hidden p-2 text-black z-50 ml-auto"
-          onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
-        >
-          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-
-        {/* Navigation Links - Desktop */}
+        {/* Navigation Links - Desktop (Centered) */}
         <nav
           role="navigation"
           aria-label="Main navigation"
-          className={`hidden md:block transition-all duration-300 ease-in-out ${
+          className={`hidden md:block absolute left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-in-out ${
             isScrolled
               ? 'bg-white/30 backdrop-blur-md rounded-full shadow-md px-6 lg:px-8 py-2 md:py-3' 
               : 'bg-transparent'
@@ -68,12 +64,24 @@ function Navbar() {
           </ul>
         </nav>
 
-        {/* CTA Button - Desktop */}
-        {!isScrolled && (
-          <button className="hidden md:block bg-[#008DDA] text-white px-4 py-1.5 lg:px-6 lg:py-2 rounded-full font-medium hover:bg-[#0480c3] transition-colors shadow-md whitespace-nowrap text-sm lg:text-base">
-            Book Now →
-          </button>
-        )}
+        {/* Book Now Button - Desktop (Right aligned) - Hidden when scrolled */}
+        <button
+          onClick={handleBookNow}
+          className={`hidden md:block bg-[#008DDA] hover:bg-[#0073b3] text-white px-4 lg:px-6 py-2 rounded-full transition-all duration-500 ease-in-out whitespace-nowrap text-base lg:text-lg font-medium shadow-md ${
+            isScrolled ? 'opacity-0 translate-x-8 pointer-events-none' : 'opacity-100 translate-x-0'
+          }`}
+        >
+          Book Now
+        </button>
+
+        {/* Mobile Menu Button (Hamburger) */}
+        <button 
+          className="md:hidden p-2 text-black z-50 ml-auto"
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+        >
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
 
         {/* Mobile Menu Compact Drawer */}
         <div
@@ -95,9 +103,19 @@ function Navbar() {
               <li><Link to="/memories" onClick={toggleMenu} className="hover:text-[#008DDA] transition-colors">Memories</Link></li>
               <li><Link to="/contact-us" onClick={toggleMenu} className="hover:text-[#008DDA] transition-colors">Contact Us</Link></li>
             </ul>
-            <button onClick={toggleMenu} className="bg-[#008DDA] text-white w-full px-4 py-2 mt-10 rounded-full font-sm hover:bg-[#0480c3] transition-colors shadow-lg">
-                Book Now →
-            </button>
+            
+            {/* Book Now Button - Mobile */}
+            <div className="mt-8 px-2">
+              <button
+                onClick={() => {
+                  toggleMenu();
+                  handleBookNow();
+                }}
+                className="block w-full bg-[#008DDA] hover:bg-[#0073b3] text-white text-center px-6 py-3 rounded-full transition-colors font-medium shadow-md"
+              >
+                Book Now
+              </button>
+            </div>
           </nav>
         </div>
         
