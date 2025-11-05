@@ -172,7 +172,7 @@ const Location = () => {
                 
                 {/* Description */}
                 <p className="text-lg text-justify text-gray-600 leading-relaxed">
-                  {location.description || 'No description available.'}
+                {location.description ? `${location.description.substring(0, 200)}${location.description.length > 200 ? '...' : ''}` : 'No description available.'}
                 </p>
                 
                 {/* Additional Info */}

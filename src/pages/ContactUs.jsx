@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, MapPin, Phone, MessageSquare, Briefcase, User, Send, CheckCircle } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -7,6 +8,12 @@ import Footer from '../components/Footer';
 // Define the primary color for consistency
 const PRIMARY_COLOR = '#008DDA';
 const PRIMARY_COLOR_CLASS = 'text-[#008DDA]';
+
+// EmailJS Configuration - Replace these with your actual IDs
+const EMAILJS_SERVICE_ID = 'service_njyvx1h'; // Replace with your EmailJS Service ID
+const EMAILJS_TEMPLATE_ID = 'template_4dfv6hp'; // Replace with your EmailJS Template ID
+const EMAILJS_PUBLIC_KEY = 'OUI9md5xUQhFl7FD1'; // Replace with your EmailJS Public Key
+
 
 // Data extracted from Footer.jsx for the client's office
 const OFFICE_CONTACT_INFO = {
@@ -53,6 +60,32 @@ const PROPERTY_LOCATIONS = [
   },
 ];
 
+// 💡 CORRECTED: Moved InputField component definition OUTSIDE of ContactUs
+// This ensures the component is not redefined on every render, fixing the focus loss.
+const InputField = ({ label, name, type = 'text', icon: Icon, formData, handleChange }) => (
+  <div className="relative">
+    <label htmlFor={name} className="block text-sm font-medium text-gray-700 sr-only">{label}</label>
+    <div className="mt-1 flex rounded-xl shadow-inner bg-white">
+      {Icon && (
+        <span className="inline-flex items-center px-4 rounded-l-xl border-t border-b border-l border-gray-200 bg-gray-50 text-gray-500 sm:text-sm">
+          <Icon className="w-5 h-5" />
+        </span>
+      )}
+      <input
+        type={type}
+        name={name}
+        id={name}
+        required
+        value={formData[name]}
+        onChange={handleChange}
+        className={`flex-1 block w-full border-gray-200 focus:border-[${PRIMARY_COLOR}] focus:ring-[${PRIMARY_COLOR}] sm:text-base p-4 transition duration-200 ${Icon ? 'rounded-r-xl' : 'rounded-xl'}`}
+        placeholder={label}
+      />
+    </div>
+  </div>
+);
+
+
 const ContactUs = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -74,43 +107,42 @@ const ContactUs = () => {
     setIsSubmitting(true);
     setSubmissionStatus(null);
 
-    // --- Placeholder Submission Logic ---
-    setTimeout(() => {
-      // In a real application, you would send this data to a server.
-      console.log('Form submitted:', formData);
-      setIsSubmitting(false);
-      
-      // Simulate success
-      setSubmissionStatus('success');
-      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-      
-      // Clear status after 5 seconds
-      setTimeout(() => setSubmissionStatus(null), 5000);
-    }, 1500);
+    // Prepare template parameters matching the EmailJS template variables
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      phone: formData.phone,
+      subject: formData.subject,
+      message: formData.message,
+    };
+
+    // Send email using EmailJS
+    emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams,
+      EMAILJS_PUBLIC_KEY
+    )
+      .then((response) => {
+        console.log('SUCCESS!', response.status, response.text);
+        setIsSubmitting(false);
+        setSubmissionStatus('success');
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        
+        // Clear status after 5 seconds
+        setTimeout(() => setSubmissionStatus(null), 5000);
+      })
+      .catch((error) => {
+        console.error('FAILED...', error);
+        setIsSubmitting(false);
+        setSubmissionStatus('error');
+        
+        // Clear status after 5 seconds
+        setTimeout(() => setSubmissionStatus(null), 5000);
+      });
   };
 
-  const InputField = ({ label, name, type = 'text', icon: Icon }) => (
-    <div className="relative">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 sr-only">{label}</label>
-      <div className="mt-1 flex rounded-xl shadow-inner bg-white">
-        {Icon && (
-          <span className="inline-flex items-center px-4 rounded-l-xl border-t border-b border-l border-gray-200 bg-gray-50 text-gray-500 sm:text-sm">
-            <Icon className="w-5 h-5" />
-          </span>
-        )}
-        <input
-          type={type}
-          name={name}
-          id={name}
-          required
-          value={formData[name]}
-          onChange={handleChange}
-          className={`flex-1 block w-full border-gray-200 focus:border-[${PRIMARY_COLOR}] focus:ring-[${PRIMARY_COLOR}] sm:text-base p-4 transition duration-200 ${Icon ? 'rounded-r-xl' : 'rounded-xl'}`}
-          placeholder={label}
-        />
-      </div>
-    </div>
-  );
+  // 💡 Note: InputField component was removed from here.
 
   const ContactCard = ({ Icon, title, content, isLink = false, linkHref = '' }) => (
     <div className="flex items-start p-4 rounded-xl hover:bg-white/10 transition duration-300">
@@ -224,12 +256,13 @@ const ContactUs = () => {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InputField label="Full Name" name="name" icon={User} />
-                  <InputField label="Email Address" name="email" type="email" icon={Mail} />
+                  {/* Props for InputField updated to pass state and handler */}
+                  <InputField label="Full Name" name="name" icon={User} formData={formData} handleChange={handleChange} />
+                  <InputField label="Email Address" name="email" type="email" icon={Mail} formData={formData} handleChange={handleChange} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InputField label="Phone Number" name="phone" type="tel" icon={Phone} />
-                  <InputField label="Subject/Event Type" name="subject" icon={Briefcase} />
+                  <InputField label="Phone Number" name="phone" type="tel" icon={Phone} formData={formData} handleChange={handleChange} />
+                  <InputField label="Subject/Event Type" name="subject" icon={Briefcase} formData={formData} handleChange={handleChange} />
                 </div>
                 
                 <div>

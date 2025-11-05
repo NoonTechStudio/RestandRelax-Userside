@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { ArrowRight, CheckCircle, Upload } from 'lucide-react';
 
-import BookingDemo from '../assets/Images/BookingDemo.jpg';
+import BookingDemo from '../assets/Images/Booking.gif';
 
 const bookingSteps = [
   { number: "01", title: "Finalize the Location", description: "Choose from our exclusive properties" },
@@ -15,8 +15,42 @@ const handleRoutingToLocation = () => {
 }
 
 const BookingMadeEasy = () => {
+  const sectionRef = useRef(null);
+  const imgRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+        
+        // Reset GIF when not visible
+        if (!entry.isIntersecting && imgRef.current) {
+          // Force reload the GIF to reset it
+          const src = imgRef.current.src;
+          imgRef.current.src = '';
+          imgRef.current.src = src;
+        }
+      },
+      {
+        threshold: 0.2, // Trigger when 20% of section is visible
+        rootMargin: '0px'
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <section className="py-12 sm:py-20 lg:py-28 bg-gradient-to-br from-[#f8faf9] to-white"> {/* Adjusted vertical padding */}
+    <section ref={sectionRef} className="py-12 sm:py-20 lg:py-28 bg-gradient-to-br from-[#f8faf9] to-white"> {/* Adjusted vertical padding */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center lg:items-stretch gap-10 lg:gap-16">
           
@@ -72,9 +106,11 @@ const BookingMadeEasy = () => {
                 <div className="relative aspect-[9/16] rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-gray-200 to-gray-100">
                   {/* Sample Image/Video Placeholder */}
                   <img 
-                    src= {BookingDemo} 
+                    ref={imgRef}
+                    src={BookingDemo} 
                     alt="Booking process video"
                     className="w-full h-full object-cover"
+                    style={{ visibility: isVisible ? 'visible' : 'hidden' }}
                   />
                   
                   {/* Upload Overlay */}

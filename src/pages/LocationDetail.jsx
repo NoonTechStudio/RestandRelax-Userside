@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
   Share2, Heart, Star, MapPin, Key, Calendar, Tag, Flag, 
-  Users, Bed, Bath, Clock, CheckCircle, Gift 
+  Users, Bed, Bath, Clock, CheckCircle, Gift, X 
 } from 'lucide-react';
 import { BookingModal, ImageGallery, GuestSelector, ReviewSection, LocationMap, Calenderdates } from '../components/Location';
 
@@ -11,7 +11,6 @@ import { BookingModal, ImageGallery, GuestSelector, ReviewSection, LocationMap, 
 import LoadingSkeleton from '../components/Location/LoadingSkeletion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-
 
 // Utils
 import { 
@@ -52,6 +51,10 @@ function LocationDetail() {
     address: '',
     food: false
   });
+
+  // Terms and Conditions states
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const guestSelectorRef = useRef(null);
   const months = generateMonths(6);
@@ -98,37 +101,47 @@ function LocationDetail() {
   }, [id]);
 
   const handleDateClick = (day, monthIndex) => {
-    if (!day || !months[monthIndex]) return;
+  if (!day || !months[monthIndex]) return;
 
-    const month = months[monthIndex];
-    const clickedDate = new Date(month.year, month.month, day);
+  const month = months[monthIndex];
+  const clickedDate = new Date(month.year, month.month, day);
+  
+  // Check if nightStay is false from propertyDetails
+  if (location?.propertyDetails?.nightStay === false) {
+    // For day picnic (nightStay: false), automatically set checkout to next day
+    const nextDay = new Date(clickedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
     
-    if (location?.propertyDetails?.nightStay) {
-      if (!checkInDate) {
-        setCheckInDate(clickedDate);
-        setSelectedDates([clickedDate]);
-      } else if (!checkOutDate && clickedDate > checkInDate) {
-        setCheckOutDate(clickedDate);
-        const datesBetween = [];
-        let currentDate = new Date(checkInDate);
-        // Start from the day after check-in for selection range, as check-in day is already selected
-        currentDate.setDate(currentDate.getDate() + 1); 
-        while (currentDate <= clickedDate) {
-          datesBetween.push(new Date(currentDate));
-          currentDate.setDate(currentDate.getDate() + 1);
-        }
-        setSelectedDates([checkInDate, ...datesBetween]);
-      } else {
-        setCheckInDate(clickedDate);
-        setCheckOutDate(null);
-        setSelectedDates([clickedDate]);
+    setCheckInDate(clickedDate);
+    setCheckOutDate(nextDay);
+    setSelectedDates([clickedDate, nextDay]);
+  } else if (location?.propertyDetails?.nightStay) {
+    // Original night stay logic
+    if (!checkInDate) {
+      setCheckInDate(clickedDate);
+      setSelectedDates([clickedDate]);
+    } else if (!checkOutDate && clickedDate > checkInDate) {
+      setCheckOutDate(clickedDate);
+      const datesBetween = [];
+      let currentDate = new Date(checkInDate);
+      currentDate.setDate(currentDate.getDate() + 1); 
+      while (currentDate <= clickedDate) {
+        datesBetween.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
       }
+      setSelectedDates([checkInDate, ...datesBetween]);
     } else {
       setCheckInDate(clickedDate);
       setCheckOutDate(null);
       setSelectedDates([clickedDate]);
     }
-  };
+  } else {
+    // Default behavior if propertyDetails is not available
+    setCheckInDate(clickedDate);
+    setCheckOutDate(null);
+    setSelectedDates([clickedDate]);
+  }
+};
 
   const handleGuestChange = (type, value) => {
     if (type === 'adults') {
@@ -139,16 +152,17 @@ function LocationDetail() {
   };
 
   const handleBookNow = () => {
-    if (!checkInDate) {
-      alert('Please select check-in date');
-      return;
-    }
-    if (location?.propertyDetails?.nightStay && !checkOutDate) {
-      alert('Please select check-out date');
-      return;
-    }
-    setShowBookingModal(true);
-  };
+  if (!checkInDate) {
+    alert('Please select check-in date');
+    return;
+  }
+  // Only require checkout date if it's a night stay
+  if (location?.propertyDetails?.nightStay && !checkOutDate) {
+    alert('Please select check-out date');
+    return;
+  }
+  setShowBookingModal(true);
+};
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
@@ -220,6 +234,109 @@ function LocationDetail() {
     );
   };
 
+  // Terms and Conditions Modal Component
+  const TermsAndConditionsModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Blur Background */}
+      <div 
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        onClick={() => setShowTermsModal(false)}
+      />
+      
+      {/* Modal Content */}
+      <div className="relative bg-white/95 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900">Terms and Conditions</h2>
+          <button
+            onClick={() => setShowTermsModal(false)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X size={24} className="text-gray-600" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
+          <div className="text-sm text-gray-600 mb-4">
+            Please read and accept the following terms and conditions:
+          </div>
+          
+          <div className="space-y-4 text-sm text-gray-700">
+            <p><strong>1. Charges for Children:</strong> Children aged between 5 and 8 years will be charged at half rate.</p>
+            <p><strong>2. Charges for Adults:</strong> Individuals above 8 years will be charged at the full rate.</p>
+            <p><strong>3. Advance Payment:</strong> Entry to the resort is permitted only after the advance payment is cleared.</p>
+            <p><strong>4. Cancellation Policy:</strong> No refunds will be issued for canceled bookings.</p>
+            <p><strong>5. Personal Responsibility:</strong> Participation in activities and use of the swimming pool is at the individual's own risk. The resort is not liable for any injuries or accidents.</p>
+            <p><strong>6. Prohibited Activities:</strong> Alcohol consumption and illegal activities are strictly prohibited within the resort.</p>
+            <p><strong>7. Swimming Pool Guidelines:</strong> Individuals with skin problems or allergies should refrain from using the swimming pool.</p>
+            <p><strong>8. Meal Timings:</strong><br />
+              Breakfast: 9:00 AM to 10:00 AM<br />
+              Lunch: 12:00 PM to 1:00 PM<br />
+              Evening Snacks: 4:00 PM to 5:00 PM<br />
+              Dinner: 8:00 PM to 10:00 PM
+            </p>
+            <p><strong>9. Group Activities:</strong> Horse riding and bullock cart rides require a minimum of 25 participants. Otherwise, they may be offered to other groups at no charge.</p>
+            <p><strong>10. Swimming Pool Depth:</strong> The swimming pool has a depth of 4 feet.</p>
+            <p><strong>11. Government Guidelines:</strong> Compliance with all relevant government guidelines is mandatory.</p>
+            <p><strong>12. [Intentionally Left Blank]</strong></p>
+            <p><strong>13. Behavioral Conduct:</strong> Individuals causing disturbances will be promptly removed from the resort.</p>
+            <p><strong>14. Contact Information:</strong> Resort helpline numbers are +91 8980688555 and +91 9099048961.</p>
+            <p><strong>15. Adventure Activities:</strong> Available only to individuals aged 18 and above.</p>
+            <p><strong>16. Personal Belongings:</strong> Guests are responsible for the security of their personal belongings.</p>
+            <p><strong>17. Pre-Entry Requirements:</strong> The booking party must undergo a full check prior to service; subsequent disputes will not be addressed.</p>
+            <p><strong>18. Identification:</strong> Wearing a wristband is mandatory; those without will be asked to leave.</p>
+            <p><strong>19. Identification for Children:</strong> Children under 5 must present ID, with guardians assuming responsibility.</p>
+            <p><strong>20. Activity Participation:</strong> All activities are available to all guests.</p>
+            <p><strong>21. Accommodation Charges:</strong> Charges for AC, non-AC rooms, or private villas are separate and must be settled accordingly.</p>
+            <p><strong>22. Check-In and Entry:</strong> Check-in is from 9:00 AM to 9:00 PM. No entry after 10:00 PM.</p>
+            <p><strong>23. Booking Information:</strong> A name and contact number are required for all bookings.</p>
+            <p><strong>24. Handling Issues:</strong> Guests should address any concerns calmly with on-site staff. Aggressive behavior will not be tolerated.</p>
+            <p className="font-semibold">Compliance with these terms is mandatory.</p>
+          </div>
+
+          {/* Agreement Checkbox */}
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="w-4 h-4 text-[#008DDA] border-gray-300 rounded focus:ring-[#008DDA]"
+              />
+              <span className="text-sm font-medium text-gray-900">
+                I agree to the Terms and Conditions
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={() => setShowTermsModal(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (agreedToTerms) {
+                setShowTermsModal(false);
+              } else {
+                alert('Please agree to the Terms and Conditions to continue.');
+              }
+            }}
+            disabled={!agreedToTerms}
+            className="px-6 py-2 bg-[#008DDA] text-white font-medium rounded-lg hover:bg-[#0066a8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Confirm Agreement
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) return <LoadingSkeleton />;
   if (error) {
     return (
@@ -257,12 +374,13 @@ function LocationDetail() {
     { value: location.propertyDetails?.bathrooms || 1, label: 'Bathrooms', icon: Bath, color: 'bg-yellow-100 text-yellow-800' },
   ].filter(detail => detail.value);
 
-  // --- START OF UI ---
-
   return (
     <>
     <Navbar/>
     <div className="min-h-screen bg-gray-50 pt-20 font-inter">
+      {/* Terms and Conditions Modal */}
+      {showTermsModal && <TermsAndConditionsModal />}
+      
       {/* Fixed Header: Name and Actions (Visible on scroll) */}
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -415,9 +533,6 @@ function LocationDetail() {
                   );
                 })}
               </div>
-              <button className={`text-sm font-semibold underline ${PRIMARY_COLOR_CLASS} hover:text-[#0066a8] transition-colors`}>
-                  Show all {amenities.length} amenities
-              </button>
             </div>
 
             {/* 5. Calendar Section */}
@@ -482,7 +597,7 @@ function LocationDetail() {
                 </div>
 
                 {/* Date & Guest Inputs */}
-                <div className="border border-gray-300 rounded-xl overflow-hidden mb-4">
+                <div className="border border-gray-300 rounded-xl overflow-visible mb-4">
                   <div className="grid grid-cols-2">
                     <div className="border-r border-gray-300 p-3 hover:bg-gray-50 transition-colors">
                       <div className="text-xs font-semibold text-gray-700 mb-1">CHECK-IN</div>
@@ -491,12 +606,12 @@ function LocationDetail() {
                       </div>
                     </div>
                     <div className="p-3 hover:bg-gray-50 transition-colors">
-                      <div className="text-xs font-semibold text-gray-700 mb-1">CHECKOUT</div>
-                      <div className="font-medium text-gray-900">
-                        {checkOutDate ? formatDate(checkOutDate) : 
-                        location?.propertyDetails?.nightStay ? 'Select date' : 'Next day'}
-                      </div>
-                    </div>
+  <div className="text-xs font-semibold text-gray-700 mb-1">CHECKOUT</div>
+  <div className="font-medium text-gray-900">
+    {checkOutDate ? formatDate(checkOutDate) : 
+    location?.propertyDetails?.nightStay ? 'Select date' : 'Next day'}
+  </div>
+</div>
                   </div>
                   
                   <GuestSelector
@@ -510,32 +625,52 @@ function LocationDetail() {
                   />
                 </div>
 
-                {/* CTA Button */}
+                {/* Capacity Info - REPLACED SECTION */}
+                <div className="border-t border-gray-200 pt-4 mb-4">
+                  <div className="flex items-start gap-3 text-sm">
+                    <Users size={24} className={`${PRIMARY_COLOR_CLASS} flex-shrink-0 mt-1`} />
+                    <div>
+                      <h4 className="font-semibold mb-1 text-gray-900">Maximum Capacity</h4>
+                      <p className="text-gray-600">
+                        This location accommodates maximum <span className="font-bold">{location.capacityOfPersons} guest{location.capacityOfPersons !== 1 ? 's' : ''}</span>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Terms and Conditions Section */}
+                <div className="border-t border-gray-200 pt-4 mb-4">
+                  <div className="flex items-start gap-3 text-sm mb-3">
+                    <Gift size={24} className={`${PRIMARY_COLOR_CLASS} flex-shrink-0 mt-1`} />
+                    <div>
+                      <h4 className="font-semibold mb-1 text-gray-900">Terms and Conditions</h4>
+                      <p className="text-gray-600 mb-3">
+                        Please read and accept our terms and conditions before proceeding with your reservation.
+                      </p>
+                      <button
+                        onClick={() => setShowTermsModal(true)}
+                        className="text-[#008DDA] hover:text-[#0066a8] underline font-medium text-sm transition-colors"
+                      >
+                        Read Terms and Conditions
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTA Button - Now depends on terms agreement */}
                 <button 
                   onClick={handleBookNow}
-                  disabled={adults + kids > location.capacityOfPersons || !checkInDate || (location?.propertyDetails?.nightStay && !checkOutDate)}
+                  disabled={adults + kids > location.capacityOfPersons || !checkInDate || (location?.propertyDetails?.nightStay && !checkOutDate) || !agreedToTerms}
                   className={`w-full bg-[#008DDA] text-white font-extrabold py-3.5 rounded-xl hover:bg-[#0066a8] transition-all duration-300 mb-4 
                              shadow-lg shadow-blue-200 transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {adults + kids > location.capacityOfPersons 
                     ? `Maximum ${location.capacityOfPersons} guests allowed`
+                    : !agreedToTerms
+                    ? 'Accept Terms to Reserve'
                     : 'Reserve Now'
                   }
                 </button>
-
-                {/* Capacity Info */}
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex items-start gap-3 text-sm">
-                    <Gift size={24} className={`${PRIMARY_COLOR_CLASS} flex-shrink-0 mt-1`} />
-                    <div>
-                      <h4 className="font-semibold mb-1 text-gray-900">Group Size</h4>
-                      <p className="text-gray-600">
-                        This location accommodates maximum <span className="font-bold">{location.capacityOfPersons} guest{location.capacityOfPersons !== 1 ? 's' : ''}</span>. 
-                        Contact us for larger group bookings and special rates.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div className="mt-6 text-center">

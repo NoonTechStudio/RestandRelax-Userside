@@ -47,21 +47,18 @@ const events = [
     title: 'One Day Picnic', 
     image: eventImages['One Day Picnic'], 
     properties: ['Misty-Wood', 'Riverfront','Swarg Maru Gaam', 'Ambawadi'], 
-    duration: 'Full Day',
     capacity: '5-100 People'
   },
   { 
     title: 'Family Gatherings', 
     image: eventImages['Family Gatherings'], 
     properties: ['Misty-Wood','Riverfront', 'Ambawadi'], 
-    duration: '4-6 Hours',
     capacity: '10-80 People'
   },
   { 
     title: 'Kitty Parties', 
     image: eventImages['Kitty Parties'], 
     properties: ['Misty-Wood', 'Ambawadi', 'Swarg Maru Gaam'], 
-    duration: '3-5 Hours',
     capacity: '20-40 People'
   },
   { 
@@ -86,7 +83,7 @@ const events = [
     title: 'Birthday Party Planning', 
     image: eventImages['Birthday Party Planning'], 
     properties: ['Misty-Wood', 'Ambawadi', 'Riverfront'], 
-    capacity: '20-60 People'
+    capacity: '20-80 People'
   },
   { 
     title: 'Corporate Event Planning', 

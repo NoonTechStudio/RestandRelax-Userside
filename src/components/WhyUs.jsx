@@ -1,7 +1,7 @@
 import React from 'react';
 import { Quote } from 'lucide-react';
 
-import OwnerImg from '../assets/Images/familygathering.jpg';
+import OwnerImg from '../assets/Images/Owner.jpeg';
 const TestimonialSection = () => {
   return (
     <section className="py-20 sm:py-28 bg-gradient-to-b from-white to-gray-50">
@@ -59,7 +59,7 @@ const TestimonialSection = () => {
           
           {/* Testimonial Card 1 - Focused on Events/Wedding */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg text-justify text-gray-700 leading-relaxed mb-6">
               The perfect wedding destination! The team at Rest and Relax handled everything flawlessly, making our big day in Vadodara absolutely magical and stress-free.
             </p>
             <div className="flex items-center gap-4">
@@ -72,7 +72,7 @@ const TestimonialSection = () => {
 
           {/* Testimonial Card 2 - Focused on Corporate/Team Building */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg text-justify text-gray-700 leading-relaxed mb-6">
               We hosted our annual corporate retreat here, and it was outstanding! The peaceful environment and professional facilities were ideal for team building.
             </p>
             <div className="flex items-center gap-4">
@@ -85,7 +85,7 @@ const TestimonialSection = () => {
 
           {/* Testimonial Card 3 - Focused on Family/Picnic */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg text-justify text-gray-700 leading-relaxed mb-6">
               A fantastic spot for a family picnic! The kids loved the open space, and the peaceful location near Vadodara was a wonderful escape from the city hustle.
             </p>
             <div className="flex items-center gap-4">
@@ -98,7 +98,7 @@ const TestimonialSection = () => {
 
           {/* Testimonial Card 4 - General praise/location */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg text-justify text-gray-700 leading-relaxed mb-6">
               The property is stunning and beautifully maintained. It truly is a haven of relaxation, making it the top choice for our events in the Gujarat area.
             </p>
             <div className="flex items-center gap-4">
@@ -111,7 +111,7 @@ const TestimonialSection = () => {
 
           {/* Testimonial Card 5 - Event service focus */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg text-justify text-gray-700 leading-relaxed mb-6">
               The service was impeccable. Every detail, from the catering to the setup for our conference, was handled with professionalism and a smile. Highly recommend!
             </p>
             <div className="flex items-center gap-4">
@@ -124,7 +124,7 @@ const TestimonialSection = () => {
 
           {/* Testimonial Card 6 - Cultural/Heritage focus */}
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+            <p className="text-lg text-justify text-gray-700 leading-relaxed mb-6">
               Choosing a venue that respected the rich culture of Vadodara was key for us. This location provided the perfect mix of modern amenities and local charm.
             </p>
             <div className="flex items-center gap-4">
