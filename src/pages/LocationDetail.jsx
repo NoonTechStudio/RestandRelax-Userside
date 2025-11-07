@@ -80,7 +80,7 @@ function LocationDetail() {
         setError(null);
         
         const [locationRes, reviewsRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/locations/${id}`),
+          axios.get(`${API_BASE_URL}/locations-details/${id}`),
           axios.get(`${API_BASE_URL}/reviews/location/${id}`)
         ]);
 
