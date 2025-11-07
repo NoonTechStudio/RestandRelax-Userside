@@ -21,6 +21,7 @@ const BookingModal = ({
   const [paymentStep, setPaymentStep] = useState('booking');
   const [razorpayOrder, setRazorpayOrder] = useState(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [tokenAmount, setTokenAmount] = useState(3000); // Default token amount
 
   const API_BASE_URL = import.meta.env.VITE_API_CONNECTION_HOST;
   const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
@@ -64,14 +65,27 @@ const BookingModal = ({
     }
   };
 
+  // Check if night stay is available at this location
+  const isNightStayAvailable = location?.propertyDetails?.nightStay || false;
+
   const calculateTotalPrice = () => {
-    const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+    // If night stay is not available, treat as single day booking (1 night)
+    const nights = isNightStayAvailable 
+      ? Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))
+      : 1;
+
     const basePrice = location?.pricing?.pricePerAdult || location?.basePrice || 1000;
     const adultPrice = (basePrice * adults * nights);
     const kidPrice = (location?.pricing?.pricePerKid || 500) * kids * nights;
-    const foodCharge = bookingForm.food ? (adults + kids) * 500 * nights : 0;
+    // Removed food charge calculation
+    // const foodCharge = bookingForm.food ? (adults + kids) * 500 * nights : 0;
     
-    return adultPrice + kidPrice + foodCharge;
+    return adultPrice + kidPrice; // Removed foodCharge from total
+  };
+
+  const calculateRemainingAmount = () => {
+    const totalPrice = calculateTotalPrice();
+    return Math.max(0, totalPrice - tokenAmount);
   };
 
   // PDF Download Function
@@ -103,6 +117,9 @@ const BookingModal = ({
     setIsSubmitting(true);
     
     try {
+      const totalPrice = calculateTotalPrice();
+      const remainingAmount = calculateRemainingAmount();
+
       const bookingPayload = {
         locationId: location._id,
         checkInDate: checkInDate.toISOString(),
@@ -113,11 +130,14 @@ const BookingModal = ({
         adults: adults,
         kids: kids,
         withFood: bookingForm.food,
+        paymentType: 'token',
+        amountPaid: tokenAmount,
+        remainingAmount: remainingAmount,
         pricing: {
           pricePerAdult: location?.pricing?.pricePerAdult || 1000,
           pricePerKid: location?.pricing?.pricePerKid || 500,
           extraPersonCharge: location?.pricing?.extraPersonCharge || 0,
-          totalPrice: calculateTotalPrice()
+          totalPrice: totalPrice
         }
       };
 
@@ -133,7 +153,7 @@ const BookingModal = ({
 
       if (result.success) {
         setBookingData(result.booking);
-        await createPaymentOrder(result.booking._id);
+        await createPaymentOrder(result.booking._id, tokenAmount);
         setPaymentStep('payment');
       } else {
         alert(result.error || 'Booking failed. Please try again.');
@@ -146,10 +166,8 @@ const BookingModal = ({
     }
   };
 
-  const createPaymentOrder = async (bookingId) => {
+  const createPaymentOrder = async (bookingId, amount) => {
     try {
-      const totalAmount = calculateTotalPrice();
-      
       const response = await fetch(`${API_BASE_URL}/payments/create-order`, {
         method: 'POST',
         headers: {
@@ -157,7 +175,7 @@ const BookingModal = ({
         },
         body: JSON.stringify({
           bookingId: bookingId,
-          amount: totalAmount,
+          amount: amount,
           currency: 'INR',
           userEmail: bookingForm.email || '',
           userPhone: bookingForm.phone
@@ -192,7 +210,7 @@ const BookingModal = ({
       amount: razorpayOrder.order.amount,
       currency: razorpayOrder.order.currency,
       name: 'Your Resort Name',
-      description: `Booking for ${location.name}`,
+      description: `Token payment for ${location.name}`,
       image: '/logo.png',
       order_id: razorpayOrder.order.id,
       handler: async function (response) {
@@ -205,7 +223,8 @@ const BookingModal = ({
       },
       notes: {
         bookingId: bookingData._id,
-        location: location.name
+        location: location.name,
+        paymentType: 'token'
       },
       theme: {
         color: '#4F46E5'
@@ -253,24 +272,6 @@ const BookingModal = ({
     }
   };
 
-  const handlePaymentFailure = async (error) => {
-    try {
-      await fetch(`${API_BASE_URL}/payments/failure`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bookingId: bookingData._id,
-          razorpayOrderId: razorpayOrder?.order?.id,
-          error: error.toString()
-        }),
-      });
-    } catch (err) {
-      console.error('Failed to record payment failure:', err);
-    }
-  };
-
   const getBookedDatesInfo = () => {
     const bookedInSelection = bookedDates.filter(booked => {
       const bookedDate = new Date(booked.date);
@@ -303,6 +304,9 @@ const BookingModal = ({
 
   // Payment View
   if (paymentStep === 'payment' && bookingData) {
+    const totalPrice = calculateTotalPrice();
+    const remainingAmount = calculateRemainingAmount();
+
     return (
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md mx-auto">
@@ -316,11 +320,11 @@ const BookingModal = ({
               </div>
               
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Complete Payment
+                Pay Token Amount
               </h3>
               
               <p className="text-gray-600 mb-4 text-sm">
-                Secure payment processed by Razorpay
+                Secure token payment processed by Razorpay
               </p>
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 text-left">
@@ -335,12 +339,35 @@ const BookingModal = ({
                     <span className="text-gray-600 text-xs">Location:</span>
                     <span className="font-medium text-xs truncate ml-2">{location.name}</span>
                   </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-xs">Total Amount:</span>
+                    <span className="font-medium text-xs">₹{totalPrice.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-xs">Remaining Amount:</span>
+                    <span className="font-medium text-xs">₹{remainingAmount.toLocaleString()}</span>
+                  </div>
+                  
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                    <span className="text-gray-600 font-semibold text-sm">Amount:</span>
+                    <span className="text-gray-600 font-semibold text-sm">
+                      Token Amount:
+                    </span>
                     <span className="font-bold text-blue-600 text-base">
-                      ₹{calculateTotalPrice().toLocaleString()}
+                      ₹{tokenAmount.toLocaleString()}
                     </span>
                   </div>
+                </div>
+
+                {/* Non-refundable notice */}
+                <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                  <p className="font-medium">⚠️ Important Notice:</p>
+                  <p className="mt-1">This token amount is <strong>non-refundable</strong> and will not be returned in case of cancellation.</p>
+                </div>
+
+                <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                  <p className="font-medium">💡 Payment Note:</p>
+                  <p className="mt-1">Remaining ₹{remainingAmount.toLocaleString()} to be paid at the property during check-in.</p>
                 </div>
               </div>
 
@@ -358,7 +385,7 @@ const BookingModal = ({
                   ) : (
                     <>
                       <CreditCard size={16} />
-                      Pay Now
+                      Pay Token Amount (₹{tokenAmount.toLocaleString()})
                     </>
                   )}
                 </button>
@@ -387,6 +414,9 @@ const BookingModal = ({
 
   // Confirmation View
   if (paymentStep === 'confirmed' && bookingData) {
+    const totalPrice = calculateTotalPrice();
+    const remainingAmount = calculateRemainingAmount();
+
     return (
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md mx-auto">
@@ -400,11 +430,11 @@ const BookingModal = ({
               </div>
               
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Booking Confirmed!
+                Token Payment Confirmed!
               </h3>
               
               <p className="text-gray-600 mb-4 text-sm">
-                Your booking and payment have been successfully processed.
+                Your token payment has been successfully processed.
                 {bookingForm.email && (
                   <span className="block text-green-600 font-medium mt-1 text-xs">
                     Confirmation sent to {bookingForm.email}
@@ -442,12 +472,39 @@ const BookingModal = ({
                       <span className="font-medium text-green-600 text-xs">Included</span>
                     </div>
                   )}
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-xs">Total Amount:</span>
+                    <span className="font-medium text-xs">₹{totalPrice.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-xs">Amount Paid:</span>
+                    <span className="font-medium text-green-600 text-xs">₹{tokenAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 text-xs">Remaining:</span>
+                    <span className="font-medium text-orange-600 text-xs">₹{remainingAmount.toLocaleString()}</span>
+                  </div>
+                  
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                    <span className="text-gray-600 font-semibold text-sm">Total Paid:</span>
+                    <span className="text-gray-600 font-semibold text-sm">
+                      Token Paid:
+                    </span>
                     <span className="font-bold text-green-600 text-base">
-                      ₹{calculateTotalPrice().toLocaleString()}
+                      ₹{tokenAmount.toLocaleString()}
                     </span>
                   </div>
+                </div>
+
+                {/* Non-refundable notice in confirmation */}
+                <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                  <p className="font-medium">⚠️ Non-Refundable Token:</p>
+                  <p className="mt-1">This token amount of ₹{tokenAmount.toLocaleString()} is <strong>non-refundable</strong> and will not be returned in case of cancellation.</p>
+                </div>
+
+                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                  <p className="font-medium">📝 Important:</p>
+                  <p className="mt-1">Please pay the remaining ₹{remainingAmount.toLocaleString()} at the property during check-in.</p>
                 </div>
               </div>
 
@@ -471,7 +528,9 @@ const BookingModal = ({
               <div className="mt-3 text-center">
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                   <CheckCircle className="w-3 h-3 text-green-500" />
-                  <span className="text-xs">Booking confirmed • PDF available</span>
+                  <span className="text-xs">
+                    Token confirmed • PDF available
+                  </span>
                 </div>
               </div>
             </div>
@@ -482,6 +541,11 @@ const BookingModal = ({
   }
 
   if (!showBookingModal) return null;
+
+  const totalPrice = calculateTotalPrice();
+  const nights = isNightStayAvailable 
+    ? Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))
+    : 1;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
@@ -604,6 +668,38 @@ const BookingModal = ({
                       </div>
                     </div>
 
+                    {/* Token Amount Selection */}
+                    <div className="border border-gray-200 rounded-lg p-3">
+                      <h5 className="text-xs font-semibold text-gray-900 mb-2">Token Amount</h5>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={tokenAmount}
+                            onChange={(e) => setTokenAmount(Number(e.target.value))}
+                            className="text-xs border border-gray-300 rounded px-2 py-1"
+                          >
+                            <option value={1000}>₹1,000</option>
+                            <option value={3000}>₹3,000</option>
+                            <option value={5000}>₹5,000</option>
+                          </select>
+                          <span className="text-xs text-gray-500">
+                            (Remaining: ₹{Math.max(0, totalPrice - tokenAmount).toLocaleString()})
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Non-refundable notice */}
+                      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                        <p className="font-medium">⚠️ Non-Refundable Token:</p>
+                        <p>This token amount is <strong>non-refundable</strong> and will not be returned in case of cancellation.</p>
+                      </div>
+
+                      <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                        <p>💡 Pay ₹{tokenAmount.toLocaleString()} now as token amount. Remaining ₹{Math.max(0, totalPrice - tokenAmount).toLocaleString()} to be paid at the property during check-in.</p>
+                      </div>
+                    </div>
+
+                    {/* Food Service Checkbox - UPDATED: Removed amount calculation, added text */}
                     <div className="flex items-start gap-2 p-3 bg-blue-50 rounded border border-blue-200">
                       <input
                         type="checkbox"
@@ -617,7 +713,7 @@ const BookingModal = ({
                           Include food service
                         </label>
                         <p className="text-xs text-gray-600 mt-1">
-                          +₹500 per person per day
+                          Food per person: ₹500 each time
                         </p>
                       </div>
                     </div>
@@ -635,7 +731,7 @@ const BookingModal = ({
                       ) : (
                         <>
                           <CreditCard size={16} />
-                          Proceed to Payment
+                          Pay Token Amount (₹{tokenAmount.toLocaleString()})
                         </>
                       )}
                     </button>
@@ -662,7 +758,7 @@ const BookingModal = ({
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600 text-xs">Duration</span>
                       <span className="font-medium text-xs">
-                        {Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))} nights
+                        {nights} {isNightStayAvailable ? 'nights' : 'day'}
                       </span>
                     </div>
                     
@@ -675,7 +771,7 @@ const BookingModal = ({
 
                     {bookingForm.food && (
                       <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-                        <span className="text-gray-600 text-xs">Food Service</span>
+                        <span className="text-gray-600 text-xs">Food Service:</span>
                         <span className="font-medium text-green-600 text-xs">Included</span>
                       </div>
                     )}
@@ -683,23 +779,30 @@ const BookingModal = ({
                     <div className="pt-2">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-gray-600 text-xs">Base Price</span>
-                        <span className="text-xs">₹{((location?.pricing?.pricePerAdult || 1000) * adults * Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))).toLocaleString()}</span>
+                        <span className="text-xs">₹{((location?.pricing?.pricePerAdult || 1000) * adults * nights).toLocaleString()}</span>
                       </div>
                       {kids > 0 && (
                         <div className="flex justify-between items-center mb-1">
                           <span className="text-gray-600 text-xs">Kids Price</span>
-                          <span className="text-xs">₹{((location?.pricing?.pricePerKid || 500) * kids * Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))).toLocaleString()}</span>
+                          <span className="text-xs">₹{((location?.pricing?.pricePerKid || 500) * kids * nights).toLocaleString()}</span>
                         </div>
                       )}
-                      {bookingForm.food && (
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-gray-600 text-xs">Food Charges</span>
-                          <span className="text-xs">₹{((adults + kids) * 500 * Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))).toLocaleString()}</span>
-                        </div>
-                      )}
+                      {/* Removed food charges calculation from summary */}
                       <div className="flex justify-between items-center pt-2 border-t border-gray-300">
                         <span className="text-sm font-bold text-gray-900">Total</span>
-                        <span className="text-base font-bold text-blue-600">₹{calculateTotalPrice().toLocaleString()}</span>
+                        <span className="text-base font-bold text-blue-600">₹{totalPrice.toLocaleString()}</span>
+                      </div>
+
+                      {/* Payment Breakdown for Token Payment */}
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-gray-600 text-xs">Token Amount:</span>
+                          <span className="text-xs font-medium text-green-600">₹{tokenAmount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600 text-xs">Remaining:</span>
+                          <span className="text-xs font-medium text-orange-600">₹{Math.max(0, totalPrice - tokenAmount).toLocaleString()}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
