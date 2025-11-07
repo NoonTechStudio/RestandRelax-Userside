@@ -85,24 +85,25 @@ const BodyText = styled.p`
 `;
 
 const ImageContainer = styled(motion.div)`
-  width: 95%; /* Slightly narrower for mobile to avoid edge-to-edge look */
-  margin: 2rem auto; /* Adjusted margins and centered */
+  width: 100%; /* Full width within the ContentContainer max-width */
+  margin: 3rem 0; /* Standard desktop margin */
   height: auto;
-  min-height: 250px; /* Reduced min height for mobile */
-  border-radius: 1rem; /* Slightly smaller radius for mobile */
+  min-height: 600px;
+  border-radius: 1.5rem;
   overflow: hidden;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Slightly lighter shadow */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   border: 4px solid white;
 
-  @media (min-width: 768px) {
-    width: 100%; /* Full width within the ContentContainer max-width */
-    margin: 3rem 0; /* Standard desktop margin */
-    min-height: 400px; 
-    border-radius: 1.5rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  @media (max-width: 1023px) {
+    min-height: 400px;
   }
-  @media (min-width: 1024px) {
-    min-height: 600px;
+
+  @media (max-width: 767px) {
+    width: 95%; /* Slightly narrower for mobile to avoid edge-to-edge look */
+    margin: 2rem auto; /* Adjusted margins and centered */
+    min-height: 250px; /* Reduced min height for mobile */
+    border-radius: 1rem; /* Slightly smaller radius for mobile */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Slightly lighter shadow */
   }
 `;
 

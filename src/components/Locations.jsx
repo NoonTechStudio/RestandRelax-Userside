@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Star, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_CONNECTION_HOST;
@@ -124,7 +125,7 @@ const Location = () => {
         <h1 className="text-5xl sm:text-6xl lg:text-7xl text-gray-900 leading-tight tracking-tight mb-6">
           Our Locations
         </h1>
-        <p className="mt-4 text-xl sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        <p className="mt-4 text-justify text-xl sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
           Explore our curated collection of world-class properties, each offering a unique and unforgettable experience
         </p>
       </div>
@@ -195,9 +196,10 @@ const Location = () => {
                     className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-xl text-white bg-[#008DDA] hover:bg-[#0278b8] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
                     View Details
-                    <ArrowRight className="w-5 h-5" />
+                    {/* <ArrowRight className="w-5 h-5" /> */}
                   </a>
                   <button 
+                    Linkto={`/locations`} 
                     type="button" 
                     className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-xl text-[#008DDA] bg-white border-2 border-[#008DDA] hover:bg-indigo-50 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >

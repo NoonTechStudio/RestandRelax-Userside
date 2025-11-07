@@ -156,7 +156,7 @@ const Locations = () => {
         <h1 className="text-5xl sm:text-7xl text-gray-900 tracking-tight leading-tight mb-4">
           Our Locations
         </h1>
-        <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        <p className="mt-4  text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
           Explore our curated collection of world-class properties, each offering a unique and unforgettable experience
         </p>
       </header>

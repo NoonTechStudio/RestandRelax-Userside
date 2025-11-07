@@ -142,6 +142,16 @@ const Heading = styled.h2`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
+  /* Mobile devices */
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+
+  /* Small mobile devices */
+  @media (max-width: 480px) {
+    font-size: 2rem;
+  }
 `;
 
 const Subheading = styled.p`
@@ -311,6 +321,18 @@ const PropertiesSection = styled(motion.div)`
   border: 1px solid #e2e8f0;
   max-height: 40vh;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border-radius: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 0.75rem;
+  }
 `;
 
 const PropertiesTitle = styled.h3`
@@ -319,12 +341,27 @@ const PropertiesTitle = styled.h3`
   color: #2d3748;
   margin-bottom: 1.5rem;
   text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const PropertiesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.25rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 `;
 
 const PropertyCard = styled(motion.div)`
@@ -336,11 +373,20 @@ const PropertyCard = styled(motion.div)`
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  
+
   &:hover {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     border-color: #cbd5e0;
     transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    border-radius: 0.875rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.875rem;
   }
 `;
 
@@ -349,6 +395,10 @@ const PropertyHeader = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 0.75rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const PropertyName = styled.h4`
@@ -356,6 +406,14 @@ const PropertyName = styled.h4`
   font-weight: 600;
   color: #2d3748;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const PropertyLocation = styled.div`
@@ -365,12 +423,26 @@ const PropertyLocation = styled.div`
   color: #718096;
   font-size: 0.9rem;
   margin-bottom: 0.75rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    gap: 0.375rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const PropertyFeatures = styled.div`
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: 0.375rem;
+  }
 `;
 
 const FeatureTag = styled.span`

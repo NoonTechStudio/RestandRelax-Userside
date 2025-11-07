@@ -96,7 +96,7 @@ const Rates = () => {
 
   const PriceTag = ({ amount, label = "" }) => (
     <div className="flex flex-col items-center">
-      <span className="text-3xl font-bold text-[#008DDA]">₹{amount}</span>
+      <span className="text-3xl md:text-3xl font-bold text-[#008DDA] text-2xl sm:text-3xl">₹{amount}</span>
       {label && <span className="text-xs text-gray-500 mt-1">{label}</span>}
     </div>
   );
@@ -108,7 +108,7 @@ const Rates = () => {
       orange: "bg-orange-100 text-orange-800"
     };
     return (
-      <span className={`${colors[color]} text-xs font-semibold px-3 py-1 rounded-full`}>
+      <span className={`${colors[color]} text-xs font-semibold px-2 py-1 rounded-full sm:px-3`}>
         {children}
       </span>
     );
@@ -121,55 +121,52 @@ const Rates = () => {
       {/* Header Section - START of ContactUs-like structure */}
       <div className="bg-white pt-24 pb-16 sm:pt-32 sm:pb-24 border-b border-gray-100 shadow-sm">
         <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* <p className={`text-lg font-semibold uppercase tracking-wider ${PRIMARY_COLOR_CLASS} mb-2`}>
-            Transparent Pricing
-          </p> */}
-          <h1 className="text-5xl sm:text-7xl text-gray-900 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
             Our Rates & Packages
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-            Find the perfect package for your getaway, <br /> from short picnics to full night stays.
+          <p className="mt-4 text-sm sm:text-base md:text-xl text-gray-600 max-w-3xl mx-auto">
+            Find the perfect package for your getaway, <br className="hidden sm:inline" /> from short picnics to full night stays.
           </p>
         </header>
       </div>
       {/* Header Section - END of ContactUs-like structure */}
 
 
-      <section className="py-16 sm:py-24">
+      <section className="py-12 sm:py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Day Picnic Section */}
-        <article className="mb-20">
-          <div className="flex items-center justify-center mb-10">
-            <div className="bg-[#008DDA] text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-lg">
-              <Sun className="w-7 h-7" />
-              <h2 className="text-3xl font-bold">Day Picnic Packages</h2>
+        <article className="mb-16 sm:mb-20">
+          <div className="flex items-center justify-center mb-8 sm:mb-10">
+            <div className="bg-[#008DDA] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full flex items-center gap-2 sm:gap-3 shadow-lg">
+              <Sun className="w-5 h-5 sm:w-7 sm:h-7" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Day Picnic Packages</h2>
             </div>
           </div>
           
-          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
             {/* Without Food Card */}
-            <div className="bg-white border-2 border-gray-200 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
-              <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-6">
-                <h3 className="text-2xl font-bold flex items-center justify-between">
+            <div className="bg-white border-2 border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center justify-between flex-wrap gap-2">
                   <span>Without Food</span>
                   <Badge color="blue">Entry Only</Badge>
                 </h3>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {dayPicnicRates.withoutFood.map((item, index) => (
-                  <div key={index} className="pb-6 border-b last:border-b-0 border-gray-200">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Clock className="w-5 h-5 text-[#008DDA]" />
-                      <p className="font-semibold text-gray-900 text-lg">{item.session}</p>
+                  <div key={index} className="pb-4 sm:pb-6 border-b last:border-b-0 border-gray-200">
+                    <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#008DDA] flex-shrink-0" />
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg">{item.session}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-blue-50 p-4 rounded-xl text-center">
-                        <p className="text-sm text-gray-600 mb-2">Adults</p>
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      <div className="bg-blue-50 p-3 sm:p-4 rounded-xl text-center">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Adults</p>
                         <PriceTag amount={item.adult} />
                       </div>
-                      <div className="bg-green-50 p-4 rounded-xl text-center">
-                        <p className="text-sm text-gray-600 mb-2">Kids (5-12 yrs)</p>
+                      <div className="bg-green-50 p-3 sm:p-4 rounded-xl text-center">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Kids (5-12 yrs)</p>
                         <PriceTag amount={item.kids} />
                       </div>
                     </div>
@@ -179,32 +176,32 @@ const Rates = () => {
             </div>
 
             {/* With Food Card */}
-            <div className="bg-white border-2 border-[#008DDA] rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
-              <div className="bg-gradient-to-r from-[#008DDA] to-[#0066a8] text-white p-6">
-                <h3 className="text-2xl font-bold flex items-center justify-between">
+            <div className="bg-white border-2 border-[#008DDA] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="bg-gradient-to-r from-[#008DDA] to-[#0066a8] text-white p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center justify-between flex-wrap gap-2">
                   <span>With Food</span>
                   <Badge color="green">Meals Included</Badge>
                 </h3>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {dayPicnicRates.withFood.map((item, index) => (
-                  <div key={index} className="pb-6 border-b last:border-b-0 border-gray-200">
+                  <div key={index} className="pb-4 sm:pb-6 border-b last:border-b-0 border-gray-200">
                     <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-5 h-5 text-[#008DDA]" />
-                      <p className="font-semibold text-gray-900 text-lg">{item.session}</p>
+                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#008DDA] flex-shrink-0" />
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg">{item.session}</p>
                     </div>
                     {item.meals && (
-                      <p className="text-sm text-green-700 bg-green-50 inline-block px-3 py-1 rounded-full mb-3 font-medium">
+                      <p className="text-xs sm:text-sm text-green-700 bg-green-50 inline-block px-2 py-1 sm:px-3 rounded-full mb-3 font-medium">
                         {item.meals}
                       </p>
                     )}
-                    <div className="grid grid-cols-2 gap-4 mt-3">
-                      <div className="bg-blue-50 p-4 rounded-xl text-center">
-                        <p className="text-sm text-gray-600 mb-2">Adults</p>
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-3">
+                      <div className="bg-blue-50 p-3 sm:p-4 rounded-xl text-center">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Adults</p>
                         <PriceTag amount={item.adult} />
                       </div>
-                      <div className="bg-green-50 p-4 rounded-xl text-center">
-                        <p className="text-sm text-gray-600 mb-2">Kids (5-12 yrs)</p>
+                      <div className="bg-green-50 p-3 sm:p-4 rounded-xl text-center">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Kids (5-12 yrs)</p>
                         <PriceTag amount={item.kids} />
                       </div>
                     </div>
@@ -215,34 +212,34 @@ const Rates = () => {
           </div>
 
           {/* School/Group Rates */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-3xl border-2 border-blue-200 shadow-lg">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="bg-[#008DDA] p-3 rounded-full">
-                <Users className="w-7 h-7 text-white" />
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-blue-200 shadow-lg">
+            <div className="flex items-start gap-3 sm:gap-4 mb-5 sm:mb-6">
+              <div className="bg-[#008DDA] p-2 sm:p-3 rounded-full flex-shrink-0">
+                <Users className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
               <div className="flex-1">
-                <h4 className="text-2xl font-bold text-gray-900 mb-2">
+                <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   School & Student Groups
                 </h4>
-                <p className="text-gray-700 font-medium">
+                <p className="text-sm sm:text-base text-gray-700 font-medium">
                   {dayPicnicRates.schoolGroup.heading}
                 </p>
               </div>
             </div>
             
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">
               {dayPicnicRates.schoolGroup.rates.map((rate, index) => (
-                <div key={index} className="bg-white p-5 rounded-xl shadow-md border border-blue-100">
-                  <p className="text-gray-700 font-medium mb-3">{rate.age}</p>
+                <div key={index} className="bg-white p-4 sm:p-5 rounded-xl shadow-md border border-blue-100">
+                  <p className="text-sm sm:text-base text-gray-700 font-medium mb-3">{rate.age}</p>
                   <PriceTag amount={rate.price} label="per person" />
                 </div>
               ))}
             </div>
             
-            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-lg">
-              <div className="flex gap-3">
-                <Star className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-700">
+            <div className="bg-amber-50 border-l-4 border-amber-400 p-3 sm:p-4 rounded-lg">
+              <div className="flex gap-2 sm:gap-3">
+                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs sm:text-sm text-gray-700">
                   <span className="font-semibold">Extra Activities:</span> {dayPicnicRates.schoolGroup.extra}
                 </p>
               </div>
@@ -251,30 +248,30 @@ const Rates = () => {
         </article>
         
         {/* Day Stay & Night Stay Section */}
-        <article className="mb-20">
-          <div className="flex items-center justify-center mb-10">
-            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-lg">
-              <Moon className="w-7 h-7" />
-              <h2 className="text-3xl font-bold">Day & Night Stay Packages</h2>
+        <article className="mb-16 sm:mb-20">
+          <div className="flex items-center justify-center mb-8 sm:mb-10">
+            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full flex items-center gap-2 sm:gap-3 shadow-lg">
+              <Moon className="w-5 h-5 sm:w-7 sm:h-7" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Day & Night Stay Packages</h2>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid lg:grid-cols-3 gap-5 sm:gap-6 mb-6 sm:mb-8">
             {/* Day Stay Cards */}
             {dayStayRates.dayStay.map((item, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="bg-gradient-to-r from-[#008DDA] to-[#0066a8] text-white p-5">
-                  <h3 className="text-xl font-bold mb-1">{item.session}</h3>
-                  <p className="text-sm opacity-90">{item.time}</p>
+              <div key={index} className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="bg-gradient-to-r from-[#008DDA] to-[#0066a8] text-white p-4 sm:p-5">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1">{item.session}</h3>
+                  <p className="text-xs sm:text-sm opacity-90">{item.time}</p>
                 </div>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="text-center mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Couple Rate</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-2">Couple Rate</p>
                     <PriceTag amount={item.couple} />
                   </div>
                   <div className="bg-blue-50 border-l-4 border-[#008DDA] p-3 rounded">
                     <p className="text-xs text-gray-700">
-                      <Info className="w-4 h-4 inline mr-1 text-[#008DDA]" />
+                      <Info className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 text-[#008DDA]" />
                       <span className="font-semibold">Kids up to 5 years:</span> Complimentary<br/>
                       <span className="font-semibold">Above 5 years:</span> Chargeable
                     </p>
@@ -285,26 +282,26 @@ const Rates = () => {
           </div>
 
           {/* Night Stay - Full Width Card */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-3xl overflow-hidden shadow-2xl mb-8">
-            <div className="p-8">
-              <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl mb-6 sm:mb-8">
+            <div className="p-5 sm:p-8">
+              <div className="flex items-center justify-between flex-wrap gap-4 mb-5 sm:mb-6">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Moon className="w-8 h-8 text-[#008DDA]" fill="currentColor" />
-                    <h3 className="text-3xl font-bold">{dayStayRates.nightStay.session}</h3>
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                    <Moon className="w-6 h-6 sm:w-8 sm:h-8 text-[#008DDA]" fill="currentColor" />
+                    <h3 className="text-2xl sm:text-3xl font-bold">{dayStayRates.nightStay.session}</h3>
                   </div>
-                  <p className="text-lg text-gray-300">{dayStayRates.nightStay.time}</p>
+                  <p className="text-base sm:text-lg text-gray-300">{dayStayRates.nightStay.time}</p>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm px-8 py-4 rounded-2xl border border-white/20">
-                  <p className="text-sm text-gray-300 mb-2">Couple Rate</p>
+                <div className="bg-white/10 backdrop-blur-sm px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl border border-white/20">
+                  <p className="text-xs sm:text-sm text-gray-300 mb-2">Couple Rate</p>
                   <div className="text-center">
-                    <span className="text-5xl font-bold text-[#008DDA]">₹{dayStayRates.nightStay.couple}</span>
+                    <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#008DDA]">₹{dayStayRates.nightStay.couple}</span>
                   </div>
                 </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-xl">
-                <p className="text-sm">
-                  <Info className="w-4 h-4 inline mr-2 text-[#008DDA]" />
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 sm:p-4 rounded-xl">
+                <p className="text-xs sm:text-sm">
+                  <Info className="w-3 h-3 sm:w-4 sm:h-4 inline mr-2 text-[#008DDA]" />
                   <span className="font-semibold">Child Policy:</span> Kids up to 5 years complimentary. Above 5 years will be chargeable.
                 </p>
               </div>
@@ -312,30 +309,30 @@ const Rates = () => {
           </div>
           
           {/* Night at Farm House */}
-          <div className="bg-gradient-to-br from-[#008DDA] to-[#0066a8] text-white rounded-3xl overflow-hidden shadow-2xl">
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-white/20 p-3 rounded-full">
-                  <Moon className="w-7 h-7" />
+          <div className="bg-gradient-to-br from-[#008DDA] to-[#0066a8] text-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
+            <div className="p-5 sm:p-8">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                <div className="bg-white/20 p-2 sm:p-3 rounded-full">
+                  <Moon className="w-5 h-5 sm:w-7 sm:h-7" />
                 </div>
                 <div>
-                  <h4 className="text-2xl font-bold">{dayStayRates.nightAtFarmhouse.heading}</h4>
-                  <p className="text-blue-100">{dayStayRates.nightAtFarmhouse.time}</p>
+                  <h4 className="text-xl sm:text-2xl font-bold">{dayStayRates.nightAtFarmhouse.heading}</h4>
+                  <p className="text-sm sm:text-base text-blue-100">{dayStayRates.nightAtFarmhouse.time}</p>
                 </div>
               </div>
               
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full inline-block mb-6 border border-white/20">
-                <p className="text-sm font-semibold">
+              <div className="bg-white/10 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full inline-block mb-5 sm:mb-6 border border-white/20">
+                <p className="text-xs sm:text-sm font-semibold">
                   ✨ {dayStayRates.nightAtFarmhouse.includes}
                 </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 {dayStayRates.nightAtFarmhouse.rates.map((rate, index) => (
-                  <div key={index} className="bg-white/20 backdrop-blur-sm p-6 rounded-2xl border border-white/30 text-center">
-                    <p className="text-blue-100 mb-3 font-medium">{rate.type}</p>
+                  <div key={index} className="bg-white/20 backdrop-blur-sm p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-white/30 text-center">
+                    <p className="text-sm sm:text-base text-blue-100 mb-3 font-medium">{rate.type}</p>
                     <div className="text-center">
-                      <span className="text-4xl font-bold">₹{rate.price}</span>
+                      <span className="text-2xl sm:text-3xl md:text-4xl font-bold">₹{rate.price}</span>
                     </div>
                   </div>
                 ))}
@@ -345,61 +342,61 @@ const Rates = () => {
         </article>
 
         {/* Extras and Group Booking Section */}
-        <article className="grid lg:grid-cols-2 gap-8 mb-15">
+        <article className="grid lg:grid-cols-2 gap-6 sm:gap-8 mb-15">
             
             {/* Extras */}
-            <div className="bg-white border-2 border-gray-200 rounded-3xl p-8 shadow-xl">
-                <div className="flex items-center gap-3 mb-6">
-                  <Sparkles className={`w-8 h-8 ${PRIMARY_COLOR_CLASS}`} />
-                  <h2 className="text-3xl font-bold text-gray-900">Extra Services</h2>
+            <div className="bg-white border-2 border-gray-200 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl">
+                <div className="flex items-center gap-2 sm:gap-3 mb-5 sm:mb-6">
+                  <Sparkles className={`w-6 h-6 sm:w-8 sm:h-8 ${PRIMARY_COLOR_CLASS}`} />
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Extra Services</h2>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                     {extras.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200">
-                            <div className="flex items-center gap-4">
-                                <div className="bg-[#008DDA]/10 p-3 rounded-full">
-                                  <item.icon className={`w-6 h-6 ${PRIMARY_COLOR_CLASS}`} />
+                        <div key={index} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 gap-3">
+                            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                                <div className="bg-[#008DDA]/10 p-2 sm:p-3 rounded-full flex-shrink-0">
+                                  <item.icon className={`w-4 h-4 sm:w-6 sm:h-6 ${PRIMARY_COLOR_CLASS}`} />
                                 </div>
-                                <div>
-                                    <p className="font-bold text-lg text-gray-900">{item.name}</p>
-                                    <p className="text-sm text-gray-600">{item.detail}</p>
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-bold text-sm sm:text-base md:text-lg text-gray-900 truncate">{item.name}</p>
+                                    <p className="text-xs sm:text-sm text-gray-600">{item.detail}</p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-2xl font-bold text-[#008DDA]">₹{item.price}</span>
+                            <div className="text-right flex-shrink-0">
+                              <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#008DDA]">₹{item.price}</span>
                             </div>
                         </div>
                     ))}
                 </div>
-                <div className="mt-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-lg">
-                  <p className="text-sm text-gray-700">
+                <div className="mt-5 sm:mt-6 bg-amber-50 border-l-4 border-amber-400 p-3 sm:p-4 rounded-lg">
+                  <p className="text-xs sm:text-sm text-gray-700">
                     <span className="font-semibold">*Note:</span> All extra services are subject to availability and separate payment.
                   </p>
                 </div>
             </div>
 
             {/* Special Discount for Group Booking CTA */}
-            <div className="bg-gradient-to-br from-[#008DDA] to-[#0066a8] text-white rounded-3xl p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden">
+            <div className="bg-gradient-to-br from-[#008DDA] to-[#0066a8] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
                 <div className="relative z-10">
-                  <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full inline-block mb-6">
-                    <Star className="w-16 h-16 text-yellow-300" fill="currentColor" />
+                  <div className="bg-white/20 backdrop-blur-sm p-3 sm:p-4 rounded-full inline-block mb-5 sm:mb-6">
+                    <Star className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-300" fill="currentColor" />
                   </div>
-                  <h2 className="text-4xl font-bold mb-4">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
                     Special Group Discounts!
                   </h2>
-                  <p className="text-xl mb-8 opacity-95 leading-relaxed">
+                  <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-95 leading-relaxed">
                     Planning a <span className="font-bold">corporate event</span>, <span className="font-bold">wedding</span>, or <span className="font-bold">large family reunion</span>? 
                   </p>
-                  <p className="text-lg mb-8 opacity-90">
+                  <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 opacity-90">
                     Contact us for customized packages and exclusive group rates!
                   </p>
                   <a 
                       href="/contact-us"
-                      className="inline-flex items-center gap-3 px-10 py-5 text-lg font-bold rounded-2xl text-[#008DDA] bg-white hover:bg-gray-50 transition-all duration-300 shadow-xl transform hover:scale-105 hover:shadow-2xl"
+                      className="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-10 sm:py-5 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl text-[#008DDA] bg-white hover:bg-gray-50 transition-all duration-300 shadow-xl transform hover:scale-105 hover:shadow-2xl"
                   >
                       Get Group Pricing
-                      <Clock className="w-6 h-6" />
+                      <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                 </div>
             </div>
