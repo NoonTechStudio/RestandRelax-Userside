@@ -61,7 +61,6 @@ const PROPERTY_LOCATIONS = [
 ];
 
 // 💡 CORRECTED: Moved InputField component definition OUTSIDE of ContactUs
-// This ensures the component is not redefined on every render, fixing the focus loss.
 const InputField = ({ label, name, type = 'text', icon: Icon, formData, handleChange }) => (
   <div className="relative">
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 sr-only">{label}</label>
@@ -78,7 +77,8 @@ const InputField = ({ label, name, type = 'text', icon: Icon, formData, handleCh
         required
         value={formData[name]}
         onChange={handleChange}
-        className={`flex-1 block w-full border-gray-200 focus:border-[${PRIMARY_COLOR}] focus:ring-[${PRIMARY_COLOR}] sm:text-base p-4 transition duration-200 ${Icon ? 'rounded-r-xl' : 'rounded-xl'}`}
+        // MODIFIED: Adjusted padding and font size for better mobile tap target
+        className={`flex-1 block w-full border-gray-200 focus:border-[${PRIMARY_COLOR}] focus:ring-[${PRIMARY_COLOR}] text-base p-3 sm:p-4 transition duration-200 ${Icon ? 'rounded-r-xl' : 'rounded-xl'}`}
         placeholder={label}
       />
     </div>
@@ -142,21 +142,24 @@ const ContactUs = () => {
       });
   };
 
-  // 💡 Note: InputField component was removed from here.
-
   const ContactCard = ({ Icon, title, content, isLink = false, linkHref = '' }) => (
-    <div className="flex items-start p-4 rounded-xl hover:bg-white/10 transition duration-300">
-      <div className="flex-shrink-0 p-3 rounded-full bg-white text-[#008DDA] shadow-md">
-        <Icon className="w-6 h-6" />
+    // MODIFIED: Reduced padding for ContactCard on mobile
+    <div className="flex items-start p-3 sm:p-4 rounded-xl hover:bg-white/10 transition duration-300">
+      {/* MODIFIED: Reduced icon size slightly */}
+      <div className="flex-shrink-0 p-2 sm:p-3 rounded-full bg-white text-[#008DDA] shadow-md">
+        <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
       </div>
-      <div className="ml-4">
-        <h3 className="text-xl font-semibold text-white">{title}</h3>
+      <div className="ml-3 sm:ml-4">
+        {/* MODIFIED: Reduced title size on mobile */}
+        <h3 className="text-lg sm:text-xl font-semibold text-white">{title}</h3>
         {isLink ? (
-          <a href={linkHref} className="text-gray-200 hover:text-white transition duration-300 font-medium">
+          // MODIFIED: Reduced content size on mobile
+          <a href={linkHref} className="text-gray-200 text-sm sm:text-base hover:text-white transition duration-300 font-medium break-words">
             {content}
           </a>
         ) : (
-          <p className="text-gray-200 leading-relaxed text-base">{content}</p>
+          // MODIFIED: Reduced content size on mobile
+          <p className="text-gray-200 leading-snug text-sm sm:text-base break-words">{content}</p>
         )}
       </div>
     </div>
@@ -167,36 +170,39 @@ const ContactUs = () => {
         <Navbar />
       
       {/* Header Section */}
-      <div className="bg-white pt-24 pb-16 sm:pt-32 sm:pb-24 border-b border-gray-100 shadow-sm">
+      {/* MODIFIED: Reduced top and bottom padding on mobile */}
+      <div className="bg-white pt-20 pb-12 sm:pt-32 sm:pb-24 border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* <p className={`text-lg font-semibold uppercase tracking-wider ${PRIMARY_COLOR_CLASS} mb-2`}>
-            24/7 Support
-          </p> */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
+          {/* MODIFIED: Adjusted H1 size for better mobile scaling */}
+          <h1 className="text-3xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
             Connect with Our Team
           </h1>
-          <p className="mt-4 text-sm md:text-xl text-gray-600 max-w-3xl mx-auto">
-            We are dedicated to providing quick and <br /> comprehensive answers to all your inquiries.
+          {/* MODIFIED: Adjusted P size for better mobile scaling */}
+          <p className="mt-3 text-sm sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            We are dedicated to providing quick and <br className="hidden sm:block" /> comprehensive answers to all your inquiries.
           </p>
         </div>
       </div>
       
       {/* Main Content: Form & Contact Info */}
-      <section className="py-16 sm:py-24">
+      <section className="py-12 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
             
             {/* Contact Information Sidebar (Col 1) */}
-            <div className={`lg:col-span-1 bg-[${PRIMARY_COLOR}] p-8 sm:p-12 space-y-8 flex flex-col justify-between`}>
+            {/* MODIFIED: Reduced padding on mobile and adjusted layout for space-y */}
+            <div className={`lg:col-span-1 bg-[${PRIMARY_COLOR}] p-6 sm:p-10 space-y-6 sm:space-y-8 flex flex-col justify-between`}>
               <div>
-                <h2 className="text-4xl font-extrabold text-white mb-6">
+                {/* MODIFIED: Adjusted H2 size on mobile */}
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 sm:mb-6">
                   Corporate HQ
                 </h2>
-                <p className="text-white/80 text-lg mb-8">
+                {/* MODIFIED: Adjusted P size on mobile */}
+                <p className="text-white/80 text-base sm:text-lg mb-6 sm:mb-8">
                   Find our main office location and direct contact lines here.
                 </p>
                 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <ContactCard 
                     Icon={MapPin} 
                     title="Visit Us" 
@@ -220,12 +226,13 @@ const ContactUs = () => {
               </div>
 
               {/* Map Embed - Office Location */}
-              <div className="rounded-xl overflow-hidden shadow-xl mt-8">
+              <div className="rounded-xl overflow-hidden shadow-xl mt-6">
                   <iframe
                       src={OFFICE_CONTACT_INFO.officeMapUrl}
                       title="Office Location"
                       width="100%"
-                      height="250"
+                      // MODIFIED: Reduced map height on mobile
+                      height="200"
                       style={{ border: 0 }}
                       allowFullScreen=""
                       loading="lazy"
@@ -236,31 +243,35 @@ const ContactUs = () => {
             </div>
 
             {/* Inquiry Form (Col 2 & 3) */}
-            <div className="lg:col-span-2 bg-white p-8 sm:p-12">
-              <h2 className="text-4xl font-extrabold text-gray-900 mb-8 border-b-4 border-gray-100 pb-3">
+            {/* MODIFIED: Reduced padding on mobile */}
+            <div className="lg:col-span-2 bg-white p-6 sm:p-10">
+              {/* MODIFIED: Adjusted H2 size on mobile */}
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6 sm:mb-8 border-b-4 border-gray-100 pb-3">
                 Send Us a Quick Message
               </h2>
               
+              {/* MODIFIED: Adjusted alert text size and padding */}
               {submissionStatus === 'success' && (
-                <div className="p-4 mb-6 text-green-800 bg-green-100 rounded-xl border border-green-300 flex items-center gap-3 font-medium">
-                  <CheckCircle className="w-5 h-5 flex-shrink-0 text-green-600" />
+                <div className="p-3 mb-4 text-green-800 bg-green-100 rounded-xl border border-green-300 flex items-center gap-2 text-sm sm:text-base font-medium">
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 text-green-600" />
                   <span>Success! Your inquiry has been sent. We will respond within 24 hours.</span>
                 </div>
               )}
               {submissionStatus === 'error' && (
-                <div className="p-4 mb-6 text-red-800 bg-red-100 rounded-xl border border-red-300 flex items-center gap-3 font-medium">
-                  <MessageSquare className="w-5 h-5 flex-shrink-0 text-red-600" />
+                <div className="p-3 mb-4 text-red-800 bg-red-100 rounded-xl border border-red-300 flex items-center gap-2 text-sm sm:text-base font-medium">
+                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 text-red-600" />
                   <span>Error! We couldn't send your message. Please try again or call us.</span>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Props for InputField updated to pass state and handler */}
+              {/* MODIFIED: Adjusted space-y for form elements */}
+              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                {/* MODIFIED: grid-cols-1 on mobile, md:grid-cols-2 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                   <InputField label="Full Name" name="name" icon={User} formData={formData} handleChange={handleChange} />
                   <InputField label="Email Address" name="email" type="email" icon={Mail} formData={formData} handleChange={handleChange} />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                   <InputField label="Phone Number" name="phone" type="tel" icon={Phone} formData={formData} handleChange={handleChange} />
                   <InputField label="Subject/Event Type" name="subject" icon={Briefcase} formData={formData} handleChange={handleChange} />
                 </div>
@@ -271,11 +282,12 @@ const ContactUs = () => {
                     <textarea
                       id="message"
                       name="message"
-                      rows="5"
+                      rows="4" // Reduced default rows for mobile
                       required
                       value={formData.message}
                       onChange={handleChange}
-                      className="block w-full rounded-xl border-gray-200 focus:border-[#008DDA] focus:ring-[#008DDA] sm:text-base p-4 transition duration-200"
+                      // MODIFIED: Adjusted padding and font size
+                      className="block w-full rounded-xl border-gray-200 focus:border-[#008DDA] focus:ring-[#008DDA] text-base p-3 sm:p-4 transition duration-200"
                       placeholder="Tell us about your requirements (e.g., preferred location, dates, number of guests)..."
                     ></textarea>
                   </div>
@@ -285,7 +297,8 @@ const ContactUs = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full flex items-center justify-center gap-3 px-8 py-4 text-lg font-bold rounded-xl text-white bg-[${PRIMARY_COLOR}] hover:bg-[#0278b8] transition-all duration-300 shadow-xl transform hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed`}
+                    // MODIFIED: Adjusted padding and font size for button
+                    className={`w-full flex items-center justify-center gap-3 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-bold rounded-xl text-white bg-[${PRIMARY_COLOR}] hover:bg-[#0278b8] transition-all duration-300 shadow-xl transform hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed`}
                   >
                     {isSubmitting ? (
                       <>
@@ -307,25 +320,30 @@ const ContactUs = () => {
       </section>
 
       {/* Property Locations Section - Enhanced Cards */}
-      <section className="bg-gray-100 py-16 sm:py-24">
+      {/* MODIFIED: Reduced padding on mobile */}
+      <section className="bg-gray-100 py-12 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <header className="text-center mb-16">
-                <h2 className="text-4xl sm:text-5xl text-gray-900 font-extrabold tracking-tight">
+            <header className="text-center mb-10 sm:mb-16">
+                {/* MODIFIED: Adjusted H2 size on mobile */}
+                <h2 className="text-3xl sm:text-5xl text-gray-900 font-extrabold tracking-tight">
                     Find Your Perfect Location
                 </h2>
-                <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+                {/* MODIFIED: Adjusted P size on mobile */}
+                <p className="mt-3 text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
                     Explore our properties and see exactly where your next perfect getaway awaits.
                 </p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* MODIFIED: grid-cols-1 on mobile, md:grid-cols-2, lg:grid-cols-4 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 {PROPERTY_LOCATIONS.map((location) => (
                     <div 
                         key={location.id} 
                         className="relative bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 group transform transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
                     >
                         {/* Map Embed as Card Background */}
-                        <div className="relative h-48 bg-gray-200">
+                        {/* MODIFIED: Reduced map height for better card stacking */}
+                        <div className="relative h-40 sm:h-48 bg-gray-200">
                             <iframe
                                 src={location.mapUrl}
                                 title={`${location.name} Map`}
@@ -340,19 +358,22 @@ const ContactUs = () => {
                             <div className="absolute inset-0 bg-black/10"></div> {/* Subtle Overlay */}
                         </div>
 
-                        <div className="p-6">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-1">{location.name}</h3>
-                            <p className="text-sm text-gray-500 mb-4 flex items-center">
-                                <MapPin className={`w-4 h-4 mr-2 ${PRIMARY_COLOR_CLASS}`} />
+                        {/* MODIFIED: Reduced padding on mobile */}
+                        <div className="p-5 sm:p-6">
+                            {/* MODIFIED: Adjusted H3 size on mobile */}
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{location.name}</h3>
+                            <p className="text-xs sm:text-sm text-gray-500 mb-4 flex items-center">
+                                <MapPin className={`w-3 h-3 sm:w-4 sm:h-4 mr-2 ${PRIMARY_COLOR_CLASS}`} />
                                 {location.location}
                             </p>
                             
                             {/* CTA Button */}
+                            {/* MODIFIED: Adjusted padding and font size for button */}
                             <a 
                                 href={location.mapUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-base font-semibold rounded-lg text-white bg-[${PRIMARY_COLOR}] hover:bg-[#0278b8] transition-colors duration-300`}
+                                className={`w-full inline-flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base font-semibold rounded-lg text-white bg-[${PRIMARY_COLOR}] hover:bg-[#0278b8] transition-colors duration-300`}
                             >
                                 Get Directions
                                 <MapPin className="w-4 h-4" />
