@@ -172,10 +172,10 @@ const ContactUs = () => {
           {/* <p className={`text-lg font-semibold uppercase tracking-wider ${PRIMARY_COLOR_CLASS} mb-2`}>
             24/7 Support
           </p> */}
-          <h1 className="text-5xl sm:text-7xl text-gray-900 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
             Connect with Our Team
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="mt-4 text-sm md:text-xl text-gray-600 max-w-3xl mx-auto">
             We are dedicated to providing quick and <br /> comprehensive answers to all your inquiries.
           </p>
         </div>

@@ -153,7 +153,7 @@ const Locations = () => {
                 </p>
             </div> */}
         </div>
-        <h1 className="text-5xl sm:text-7xl text-gray-900 tracking-tight leading-tight mb-4">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
           Our Locations
         </h1>
         <p className="mt-4  text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">

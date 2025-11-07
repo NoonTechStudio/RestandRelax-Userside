@@ -165,10 +165,10 @@ const MemoriesGallery = () => {
         {/* Header Section */}
         <div className="bg-white pt-24 pb-16 sm:pt-32 sm:pb-24 border-b border-gray-100 shadow-sm">
           <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-5xl sm:text-7xl text-gray-900 tracking-tight leading-tight mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
               Memories Gallery
             </h1>
-            <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-4 text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Explore the beautiful moments shared by our guests at our exclusive locations.
             </p>
           </header>
