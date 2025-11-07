@@ -198,13 +198,13 @@ const Location = () => {
                     View Details
                     {/* <ArrowRight className="w-5 h-5" /> */}
                   </a>
-                  <button 
-                    Linkto={`/locations`} 
-                    type="button" 
+                  {/* CORRECTED: Changed button to Link and set 'to' to the location details page */}
+                  <Link 
+                    to={`/locations-details/${location._id}`} 
                     className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-xl text-[#008DDA] bg-white border-2 border-[#008DDA] hover:bg-indigo-50 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     Book Now
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
