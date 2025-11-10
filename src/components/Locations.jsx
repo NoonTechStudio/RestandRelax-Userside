@@ -193,7 +193,7 @@ const Location = () => {
                 <div className="flex flex-wrap gap-4 pt-4">
                   <a 
                     href={`/locations-details/${location._id}`} 
-                    className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-xl text-white bg-[#008DDA] hover:bg-[#0278b8] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-xl text-white bg-[#008DDA] hover:bg-[#0278b8] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     View Details
                     {/* <ArrowRight className="w-5 h-5" /> */}

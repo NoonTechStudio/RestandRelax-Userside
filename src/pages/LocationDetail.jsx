@@ -431,15 +431,20 @@ function LocationDetail() {
           </div>
         </div>
 
-        {/* Images Section */}
-<ImageGallery 
-  locationId={location._id}
-  images={{
-    mainImage: location.images[0], // Pass the object, not processed URL
-    otherImages: location.images?.slice(1, 5), // Pass objects array
-    allImages: location.images // Pass original array
-  }}
-/>
+        {/* Images Section - WRAPPED FOR MOBILE FIX */}
+        {/* The -mx-4 removes the container's horizontal padding on small screens (mobile) 
+            to allow the ImageGallery to take full width, which often fixes layout issues
+            where grid components overflow the screen. sm:mx-0 restores normal margin on small devices and up. */}
+        <div className="-mx-4 sm:mx-0">
+          <ImageGallery 
+            locationId={location._id}
+            images={{
+              mainImage: location.images[0], // Pass the object, not processed URL
+              otherImages: location.images?.slice(1, 5), // Pass objects array
+              allImages: location.images // Pass original array
+            }}
+          />
+        </div>
         
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12">
           
