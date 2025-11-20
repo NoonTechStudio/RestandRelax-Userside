@@ -1,412 +1,406 @@
 import React from 'react';
-import { CheckCircle, Clock, Users, Sun, Moon, Sparkles, Star, Info } from 'lucide-react';
+import { 
+  Check, 
+  Utensils, 
+  Coffee, 
+  Moon, 
+  Sun, 
+  Home, 
+  Info, 
+  Clock,
+  Star,
+  Users
+} from 'lucide-react';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 
-// Define the primary color for consistency
-const PRIMARY_COLOR_CLASS = 'text-[#008DDA]';
-
 const Rates = () => {
-  // Data derived from the attached screenshots
-  const dayPicnicRates = {
-    withoutFood: [
-      { 
-        session: "Morning Session (8:00 am to 2:00 pm)", 
-        adult: "400", 
-        kids: "200" 
-      },
-      { 
-        session: "Evening Session (3:00 pm to 9:00 pm)", 
-        adult: "400", 
-        kids: "200" 
-      },
-      { 
-        session: "A full day picnic (8:00 am to 8:00 pm)", 
-        adult: "800", 
-        kids: "300" 
-      },
-    ],
-    withFood: [
-      { 
-        session: "Morning Session (8:00 am to 2:00 pm)", 
-        adult: "750", 
-        kids: "400" 
-      },
-      { 
-        session: "Evening Session (3:00 pm to 9:00 pm)", 
-        adult: "750", 
-        kids: "400" 
-      },
-      { 
-        session: "A full day picnic (8:00 am to 8:00 pm)", 
-        meals: "Breakfast + Lunch + High Tea + Dinner",
-        adult: "1250", 
-        kids: "550" 
-      },
-    ],
-    schoolGroup: {
-      heading: "Day Picnics Private School / Tuition classes / Collages / Student groups.",
-      rates: [
-        { age: "01 years to 15 years", price: "150" },
-        { age: "15 years to 18 years above", price: "250" }
-      ],
-      extra: "Puppet show, Magic show, horse riding, Bullock cart ride available with extra charge."
-    }
-  };
-
-  const dayStayRates = {
-    dayStay: [
-      {
-        session: "Morning Session",
-        time: "8:00 am to 2:00 pm",
-        couple: "1500"
-      },
-      {
-        session: "Evening Session",
-        time: "3:00 pm to 9:00 pm",
-        couple: "1500"
-      },
-      {
-        session: "Full Day Stay",
-        time: "8:00 am to 8:00 pm",
-        couple: "2500"
-      }
-    ],
-    nightStay: {
-        session: "Night Stay",
-        time: "9:00 pm to 9:00 am",
-        couple: "3500"
-    },
-    nightAtFarmhouse: {
-        heading: "Night At Farm House",
-        time: "09 PM to 09 AM",
-        includes: "With Dinner & Breakfast",
-        rates: [
-            { type: "Single Person", price: "1000" },
-            { type: "Kid above 5 years", price: "600" }
-        ]
-    }
-  };
   
-  const extras = [
-    { name: "Swimming Pool", detail: "Only Morning Session", price: "300", icon: Sparkles },
-    { name: "Villa Ground Floor", detail: "Booking For Villa (Ground Floor)", price: "4500", icon: CheckCircle },
-    { name: "Full Villa", detail: "Booking For Villa (Full Villa)", price: "7500", icon: CheckCircle },
+  // --- SECTION 1 DATA: The "Nice Format" Overview (from WhatsApp Image) ---
+  const overviewPackages = [
+    {
+      id: 1,
+      title: "Entry Only",
+      price: "500",
+      duration: "Day Access",
+      icon: <Sun className="w-6 h-6" />,
+      color: "blue",
+      highlight: false,
+      features: [
+        "Entry Ticket",
+        "Access to Resort Amenities",
+        "No Food Included"
+      ]
+    },
+    {
+      id: 2,
+      title: "Entry + Food",
+      price: "1000",
+      duration: "Morning to Evening",
+      icon: <Utensils className="w-6 h-6" />,
+      color: "teal",
+      highlight: true, // The "Most Popular" card
+      tag: "Most Popular",
+      features: [
+        "Entry Ticket",
+        "Buffet Breakfast",
+        "Buffet Lunch",
+        "High-Tea",
+        "Access to Amenities"
+      ]
+    },
+    {
+      id: 3,
+      title: "Full Day + Food",
+      price: "1300",
+      duration: "Full Day",
+      icon: <Coffee className="w-6 h-6" />,
+      color: "emerald",
+      highlight: false,
+      features: [
+        "Entry Ticket",
+        "Buffet Breakfast",
+        "Buffet Lunch",
+        "High-Tea",
+        "Buffet Dinner",
+        "Full Day Enjoyment"
+      ]
+    },
+    {
+      id: 4,
+      title: "Full Day + Room",
+      price: "2000",
+      duration: "Day & Night",
+      icon: <Home className="w-6 h-6" />,
+      color: "violet",
+      highlight: false,
+      features: [
+        "Entry Ticket",
+        "All Buffet Meals",
+        "High-Tea",
+        "Non-AC Room Included",
+        "Full Day & Night Access"
+      ]
+    }
   ];
 
-  const PriceTag = ({ amount, label = "" }) => (
-    <div className="flex flex-col items-center">
-      <span className="text-3xl md:text-3xl font-bold text-[#008DDA] text-2xl sm:text-3xl">₹{amount}</span>
-      {label && <span className="text-xs text-gray-500 mt-1">{label}</span>}
+  // --- SECTION 2 DATA: Detailed Breakdowns (from Screenshots) ---
+  const detailedPicnic = {
+    withoutFood: {
+      title: "Without Food",
+      subtitle: "Entry Only",
+      icon: <Sun className="w-5 h-5" />,
+      sessions: [
+        { label: "Morning Session", time: "8:00 am to 2:00 pm", adult: "500", kid: "200" },
+        { label: "Evening Session", time: "3:00 pm to 9:00 pm", adult: "500", kid: "200" },
+        { label: "Full Day Picnic", time: "8:00 am to 8:00 pm", adult: "800", kid: "300" },
+      ]
+    },
+    withFood: {
+      title: "With Food",
+      subtitle: "Meals Included",
+      icon: <Utensils className="w-5 h-5" />,
+      sessions: [
+        { label: "Morning Session", time: "8:00 am to 2:00 pm", adult: "750", kid: "400" },
+        { label: "Evening Session", time: "3:00 pm to 9:00 pm", adult: "750", kid: "400" },
+        { 
+          label: "Full Day Picnic", 
+          time: "8:00 am to 8:00 pm", 
+          adult: "1300", 
+          kid: "550",
+          note: "Includes: Breakfast + Lunch + High Tea + Dinner"
+        },
+      ]
+    }
+  };
+
+  const coupleStays = [
+    { title: "Morning Session", time: "8:00 am to 2:00 pm", price: "1500", type: "Couple Rate" },
+    { title: "Evening Session", time: "3:00 pm to 9:00 pm", price: "1500", type: "Couple Rate" },
+    { title: "Full Day Stay", time: "8:00 am to 8:00 pm", price: "2500", type: "Couple Rate" },
+    { title: "Night Stay", time: "9:00 pm to 9:00 am", price: "3500", type: "Couple Rate", highlight: true }
+  ];
+
+  const nightFarmHouse = {
+    title: "Night At Farm House",
+    time: "09 PM to 09 AM",
+    includes: "With Dinner & Breakfast",
+    rates: [
+        { type: "Single Person", price: "1000" },
+        { type: "Kid above 5 years", price: "600" }
+    ]
+  };
+
+  const extras = [
+    { name: "Swimming Pool", detail: "Morning Session Add-on", price: "300" },
+    { name: "Villa Ground Floor", detail: "Private Villa Booking", price: "4500" },
+    { name: "Full Villa", detail: "Full Private Villa Booking", price: "7500" },
+  ];
+
+  const PriceRow = ({ label, price }) => (
+    <div className="flex justify-between items-end border-b border-dashed border-gray-200 pb-2 mb-2 last:border-0 last:mb-0 last:pb-0">
+      <span className="text-sm font-medium text-gray-600">{label}</span>
+      <span className="font-bold text-[#008DDA]">₹{price}</span>
     </div>
   );
-
-  const Badge = ({ children, color = "blue" }) => {
-    const colors = {
-      blue: "bg-blue-100 text-blue-800",
-      green: "bg-green-100 text-green-800",
-      orange: "bg-orange-100 text-orange-800"
-    };
-    return (
-      <span className={`${colors[color]} text-xs font-semibold px-2 py-1 rounded-full sm:px-3`}>
-        {children}
-      </span>
-    );
-  };
 
   return (
     <div className="bg-gray-50 min-h-screen font-inter">
       <Navbar />
-        
-      {/* Header Section - START of ContactUs-like structure */}
-      <div className="bg-white pt-24 pb-16 sm:pt-32 sm:pb-24 border-b border-gray-100 shadow-sm">
-        <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-7xl text-gray-900 tracking-tight">
-            Our Rates & Packages
+
+      {/* Hero Header */}
+      <div className="bg-white pt-28 pb-10 sm:pt-36 sm:pb-16 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-4">
+            Our <span className="text-[#008DDA]">Packages</span>
           </h1>
-          <p className="mt-4 text-sm sm:text-base md:text-xl text-gray-600 max-w-3xl mx-auto">
-            Find the perfect package for your getaway, <br className="hidden sm:inline" /> from short picnics to full night stays.
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Choose from our popular all-inclusive packages or customize your visit with session-based rates below.
           </p>
-        </header>
+        </div>
       </div>
-      {/* Header Section - END of ContactUs-like structure */}
 
-
-      <section className="py-12 sm:py-16 md:py-24">
+      {/* ==========================================
+          SECTION 1: OVERVIEW (The "Nice Format") 
+         ========================================== */}
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Day Picnic Section */}
-        <article className="mb-16 sm:mb-20">
-          <div className="flex items-center justify-center mb-8 sm:mb-10">
-            <div className="bg-[#008DDA] text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full flex items-center gap-2 sm:gap-3 shadow-lg">
-              <Sun className="w-5 h-5 sm:w-7 sm:h-7" />
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Day Picnic Packages</h2>
-            </div>
-          </div>
-          
-          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
-            {/* Without Food Card */}
-            <div className="bg-white border-2 border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
-              <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center justify-between flex-wrap gap-2">
-                  <span>Without Food</span>
-                  <Badge color="blue">Entry Only</Badge>
-                </h3>
-              </div>
-              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                {dayPicnicRates.withoutFood.map((item, index) => (
-                  <div key={index} className="pb-4 sm:pb-6 border-b last:border-b-0 border-gray-200">
-                    <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#008DDA] flex-shrink-0" />
-                      <p className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg">{item.session}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                      <div className="bg-blue-50 p-3 sm:p-4 rounded-xl text-center">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Adults</p>
-                        <PriceTag amount={item.adult} />
-                      </div>
-                      <div className="bg-green-50 p-3 sm:p-4 rounded-xl text-center">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Kids (5-12 yrs)</p>
-                        <PriceTag amount={item.kids} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* With Food Card */}
-            <div className="bg-white border-2 border-[#008DDA] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
-              <div className="bg-gradient-to-r from-[#008DDA] to-[#0066a8] text-white p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center justify-between flex-wrap gap-2">
-                  <span>With Food</span>
-                  <Badge color="green">Meals Included</Badge>
-                </h3>
-              </div>
-              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                {dayPicnicRates.withFood.map((item, index) => (
-                  <div key={index} className="pb-4 sm:pb-6 border-b last:border-b-0 border-gray-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#008DDA] flex-shrink-0" />
-                      <p className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg">{item.session}</p>
-                    </div>
-                    {item.meals && (
-                      <p className="text-xs sm:text-sm text-green-700 bg-green-50 inline-block px-2 py-1 sm:px-3 rounded-full mb-3 font-medium">
-                        {item.meals}
-                      </p>
-                    )}
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-3">
-                      <div className="bg-blue-50 p-3 sm:p-4 rounded-xl text-center">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Adults</p>
-                        <PriceTag amount={item.adult} />
-                      </div>
-                      <div className="bg-green-50 p-3 sm:p-4 rounded-xl text-center">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2">Kids (5-12 yrs)</p>
-                        <PriceTag amount={item.kids} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold text-gray-900">Popular Packages</h2>
+            <p className="text-gray-500">Our best-selling all-inclusive options</p>
           </div>
 
-          {/* School/Group Rates */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 sm:p-8 rounded-2xl sm:rounded-3xl border-2 border-blue-200 shadow-lg">
-            <div className="flex items-start gap-3 sm:gap-4 mb-5 sm:mb-6">
-              <div className="bg-[#008DDA] p-2 sm:p-3 rounded-full flex-shrink-0">
-                <Users className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
-              </div>
-              <div className="flex-1">
-                <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">
-                  School & Student Groups
-                </h4>
-                <p className="text-sm sm:text-base text-gray-700 font-medium">
-                  {dayPicnicRates.schoolGroup.heading}
-                </p>
-              </div>
-            </div>
-            
-            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">
-              {dayPicnicRates.schoolGroup.rates.map((rate, index) => (
-                <div key={index} className="bg-white p-4 sm:p-5 rounded-xl shadow-md border border-blue-100">
-                  <p className="text-sm sm:text-base text-gray-700 font-medium mb-3">{rate.age}</p>
-                  <PriceTag amount={rate.price} label="per person" />
-                </div>
-              ))}
-            </div>
-            
-            <div className="bg-amber-50 border-l-4 border-amber-400 p-3 sm:p-4 rounded-lg">
-              <div className="flex gap-2 sm:gap-3">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <p className="text-xs sm:text-sm text-gray-700">
-                  <span className="font-semibold">Extra Activities:</span> {dayPicnicRates.schoolGroup.extra}
-                </p>
-              </div>
-            </div>
-          </div>
-        </article>
-        
-        {/* Day Stay & Night Stay Section */}
-        <article className="mb-16 sm:mb-20">
-          <div className="flex items-center justify-center mb-8 sm:mb-10">
-            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full flex items-center gap-2 sm:gap-3 shadow-lg">
-              <Moon className="w-5 h-5 sm:w-7 sm:h-7" />
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Day & Night Stay Packages</h2>
-            </div>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+            {overviewPackages.map((pkg) => (
+              <div 
+                key={pkg.id} 
+                className={`relative bg-white rounded-3xl flex flex-col
+                  ${pkg.highlight ? 'ring-4 ring-[#008DDA]/20 shadow-2xl scale-105 z-10' : 'border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300'}
+                `}
+              >
+                {pkg.highlight && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-[#008DDA] text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                      {pkg.tag}
+                    </span>
+                  </div>
+                )}
 
-          <div className="grid lg:grid-cols-3 gap-5 sm:gap-6 mb-6 sm:mb-8">
-            {/* Day Stay Cards */}
-            {dayStayRates.dayStay.map((item, index) => (
-              <div key={index} className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="bg-gradient-to-r from-[#008DDA] to-[#0066a8] text-white p-4 sm:p-5">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1">{item.session}</h3>
-                  <p className="text-xs sm:text-sm opacity-90">{item.time}</p>
-                </div>
-                <div className="p-4 sm:p-6">
-                  <div className="text-center mb-4">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-2">Couple Rate</p>
-                    <PriceTag amount={item.couple} />
+                <div className="p-8 flex-grow">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6
+                    ${pkg.color === 'blue' ? 'bg-blue-50 text-blue-600' : ''}
+                    ${pkg.color === 'teal' ? 'bg-teal-50 text-teal-600' : ''}
+                    ${pkg.color === 'emerald' ? 'bg-emerald-50 text-emerald-600' : ''}
+                    ${pkg.color === 'violet' ? 'bg-violet-50 text-violet-600' : ''}
+                  `}>
+                    {pkg.icon}
                   </div>
-                  <div className="bg-blue-50 border-l-4 border-[#008DDA] p-3 rounded">
-                    <p className="text-xs text-gray-700">
-                      <Info className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 text-[#008DDA]" />
-                      <span className="font-semibold">Kids up to 5 years:</span> Complimentary<br/>
-                      <span className="font-semibold">Above 5 years:</span> Chargeable
-                    </p>
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{pkg.title}</h3>
+                  <p className="text-sm text-gray-400 mb-6">{pkg.duration}</p>
+
+                  <div className="mb-8">
+                    <span className="text-4xl font-extrabold text-gray-900">₹{pkg.price}</span>
+                    <span className="text-gray-400 ml-1">/ person</span>
                   </div>
+
+                  <ul className="space-y-4">
+                    {pkg.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className={`mt-1 p-0.5 rounded-full
+                          ${pkg.color === 'blue' ? 'bg-blue-100 text-blue-600' : ''}
+                          ${pkg.color === 'teal' ? 'bg-teal-100 text-teal-600' : ''}
+                          ${pkg.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' : ''}
+                          ${pkg.color === 'violet' ? 'bg-violet-100 text-violet-600' : ''}
+                        `}>
+                           <Check className="w-3 h-3" strokeWidth={3} />
+                        </div>
+                        <span className="text-sm text-gray-600">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+
+                {/* <div className="p-8 pt-0">
+                  <button className={`w-full py-3.5 rounded-xl font-bold text-sm transition-colors
+                    ${pkg.highlight 
+                      ? 'bg-[#008DDA] text-white hover:bg-[#0077b6] shadow-lg shadow-blue-200' 
+                      : 'bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200'}
+                  `}>
+                    Book Now
+                  </button>
+                </div> */}
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Night Stay - Full Width Card */}
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl mb-6 sm:mb-8">
-            <div className="p-5 sm:p-8">
-              <div className="flex items-center justify-between flex-wrap gap-4 mb-5 sm:mb-6">
+      {/* Divider */}
+      <div className="max-w-7xl mx-auto px-4"><hr className="border-gray-200" /></div>
+
+      {/* ==========================================
+          SECTION 2: DETAILED BREAKDOWN
+         ========================================== */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="mb-16">
+             <h2 className="text-3xl font-bold text-gray-900 mb-4">Detailed Session Rates</h2>
+             <p className="text-lg text-gray-600">Specific timing breakdowns for picnics and stays.</p>
+          </div>
+
+          {/* Part A: Day Picnic Detail Grid */}
+          <div className="grid lg:grid-cols-2 gap-10 mb-20">
+            {/* Without Food */}
+            <div className="border border-gray-200 rounded-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-gray-100 p-2 rounded-lg">{detailedPicnic.withoutFood.icon}</div>
                 <div>
-                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                    <Moon className="w-6 h-6 sm:w-8 sm:h-8 text-[#008DDA]" fill="currentColor" />
-                    <h3 className="text-2xl sm:text-3xl font-bold">{dayStayRates.nightStay.session}</h3>
-                  </div>
-                  <p className="text-base sm:text-lg text-gray-300">{dayStayRates.nightStay.time}</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm px-6 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl border border-white/20">
-                  <p className="text-xs sm:text-sm text-gray-300 mb-2">Couple Rate</p>
-                  <div className="text-center">
-                    <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#008DDA]">₹{dayStayRates.nightStay.couple}</span>
-                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">{detailedPicnic.withoutFood.title}</h3>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">{detailedPicnic.withoutFood.subtitle}</p>
                 </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 sm:p-4 rounded-xl">
-                <p className="text-xs sm:text-sm">
-                  <Info className="w-3 h-3 sm:w-4 sm:h-4 inline mr-2 text-[#008DDA]" />
-                  <span className="font-semibold">Child Policy:</span> Kids up to 5 years complimentary. Above 5 years will be chargeable.
-                </p>
+              <div className="space-y-6">
+                {detailedPicnic.withoutFood.sessions.map((session, idx) => (
+                  <div key={idx} className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3 text-[#008DDA]">
+                      <Clock className="w-4 h-4" />
+                      <span className="font-semibold text-sm">{session.label}</span>
+                      <span className="text-xs text-gray-500 ml-auto">{session.time}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <PriceRow label="Adults" price={session.adult} />
+                       <PriceRow label="Kids (5-12)" price={session.kid} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-          
-          {/* Night at Farm House */}
-          <div className="bg-gradient-to-br from-[#008DDA] to-[#0066a8] text-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
-            <div className="p-5 sm:p-8">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4">
-                <div className="bg-white/20 p-2 sm:p-3 rounded-full">
-                  <Moon className="w-5 h-5 sm:w-7 sm:h-7" />
-                </div>
-                <div>
-                  <h4 className="text-xl sm:text-2xl font-bold">{dayStayRates.nightAtFarmhouse.heading}</h4>
-                  <p className="text-sm sm:text-base text-blue-100">{dayStayRates.nightAtFarmhouse.time}</p>
-                </div>
-              </div>
-              
-              <div className="bg-white/10 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-full inline-block mb-5 sm:mb-6 border border-white/20">
-                <p className="text-xs sm:text-sm font-semibold">
-                  ✨ {dayStayRates.nightAtFarmhouse.includes}
-                </p>
-              </div>
 
-              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                {dayStayRates.nightAtFarmhouse.rates.map((rate, index) => (
-                  <div key={index} className="bg-white/20 backdrop-blur-sm p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-white/30 text-center">
-                    <p className="text-sm sm:text-base text-blue-100 mb-3 font-medium">{rate.type}</p>
-                    <div className="text-center">
-                      <span className="text-2xl sm:text-3xl md:text-4xl font-bold">₹{rate.price}</span>
+            {/* With Food */}
+            <div className="border border-[#008DDA]/30 bg-blue-50/30 rounded-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-blue-100 p-2 rounded-lg text-[#008DDA]">{detailedPicnic.withFood.icon}</div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{detailedPicnic.withFood.title}</h3>
+                  <p className="text-xs font-bold text-[#008DDA] uppercase tracking-wide">{detailedPicnic.withFood.subtitle}</p>
+                </div>
+              </div>
+              <div className="space-y-6">
+                {detailedPicnic.withFood.sessions.map((session, idx) => (
+                  <div key={idx} className="bg-white rounded-xl p-4 shadow-sm border border-blue-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 text-[#008DDA]">
+                        <Clock className="w-4 h-4" />
+                        <span className="font-semibold text-sm">{session.label}</span>
+                      </div>
+                      <span className="text-xs text-gray-400 ml-auto">{session.time}</span>
+                    </div>
+                    
+                    {session.note && (
+                        <p className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded mb-3 inline-block font-medium">
+                          {session.note}
+                        </p>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-4">
+                       <PriceRow label="Adults" price={session.adult} />
+                       <PriceRow label="Kids (5-12)" price={session.kid} />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        </article>
 
-        {/* Extras and Group Booking Section */}
-        <article className="grid lg:grid-cols-2 gap-6 sm:gap-8 mb-15">
-            
-            {/* Extras */}
-            <div className="bg-white border-2 border-gray-200 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl">
-                <div className="flex items-center gap-2 sm:gap-3 mb-5 sm:mb-6">
-                  <Sparkles className={`w-6 h-6 sm:w-8 sm:h-8 ${PRIMARY_COLOR_CLASS}`} />
-                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Extra Services</h2>
+          {/* Part B: Couple Stays */}
+          <div className="mb-20">
+            <div className="flex items-center gap-2 mb-8">
+               <Moon className="w-6 h-6 text-gray-900" />
+               <h3 className="text-2xl font-bold text-gray-900">Couple Stay Options</h3>
+            </div>
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+                {coupleStays.map((stay, idx) => (
+                    <div key={idx} className={`rounded-2xl p-6 border ${stay.highlight ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-900 border-gray-200 hover:border-[#008DDA]'} transition-colors`}>
+                        <h4 className="font-bold text-lg mb-1">{stay.title}</h4>
+                        <p className={`text-xs mb-6 ${stay.highlight ? 'text-gray-400' : 'text-gray-500'}`}>{stay.time}</p>
+                        <div className="flex justify-between items-end">
+                             <span className="text-xs uppercase tracking-wider opacity-70">{stay.type}</span>
+                             <span className={`text-2xl font-bold ${stay.highlight ? 'text-[#008DDA]' : 'text-[#008DDA]'}`}>₹{stay.price}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+             {/* Child Policy */}
+            <div className="mt-6 bg-blue-50 p-4 rounded-xl flex gap-3">
+                <Info className="w-5 h-5 text-[#008DDA] mt-0.5" />
+                <p className="text-sm text-gray-700">
+                    <span className="font-bold">Stay Child Policy:</span> Kids up to 5 years are complimentary. Kids above 5 years are chargeable.
+                </p>
+            </div>
+          </div>
+
+          {/* Part C: Night at Farmhouse (Blue Card) */}
+          <div className="bg-[#005c99] rounded-3xl overflow-hidden shadow-xl mb-20 text-white">
+            <div className="p-8 sm:p-12 flex flex-col lg:flex-row items-center justify-between gap-10">
+                <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="bg-white/10 p-2 rounded-full"><Moon className="w-6 h-6" /></div>
+                        <h2 className="text-3xl font-bold">{nightFarmHouse.title}</h2>
+                    </div>
+                    <p className="text-blue-200 text-lg mb-6">{nightFarmHouse.time}</p>
+                    <span className="inline-block bg-[#008DDA] px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
+                       ✨ {nightFarmHouse.includes}
+                    </span>
                 </div>
-                <div className="space-y-3 sm:space-y-4">
-                    {extras.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 gap-3">
-                            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                                <div className="bg-[#008DDA]/10 p-2 sm:p-3 rounded-full flex-shrink-0">
-                                  <item.icon className={`w-4 h-4 sm:w-6 sm:h-6 ${PRIMARY_COLOR_CLASS}`} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="font-bold text-sm sm:text-base md:text-lg text-gray-900 truncate">{item.name}</p>
-                                    <p className="text-xs sm:text-sm text-gray-600">{item.detail}</p>
-                                </div>
+                <div className="flex gap-6 w-full lg:w-auto">
+                     {nightFarmHouse.rates.map((rate, idx) => (
+                         <div key={idx} className="bg-white/10 backdrop-blur-sm border border-white/10 flex-1 lg:w-48 p-6 rounded-2xl text-center">
+                             <p className="text-sm text-blue-100 mb-2">{rate.type}</p>
+                             <p className="text-3xl font-bold">₹{rate.price}</p>
+                         </div>
+                     ))}
+                </div>
+            </div>
+          </div>
+
+          {/* Part D: Extras */}
+          <div className="grid md:grid-cols-2 gap-8">
+             <div className="bg-white border border-gray-200 rounded-2xl p-8">
+                <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" /> 
+                    Extra Services
+                </h3>
+                <div className="space-y-4">
+                    {extras.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p className="font-semibold text-gray-900">{item.name}</p>
+                                <p className="text-xs text-gray-500">{item.detail}</p>
                             </div>
-                            <div className="text-right flex-shrink-0">
-                              <span className="text-lg sm:text-xl md:text-2xl font-bold text-[#008DDA]">₹{item.price}</span>
-                            </div>
+                            <span className="font-bold text-[#008DDA]">₹{item.price}</span>
                         </div>
                     ))}
                 </div>
-                <div className="mt-5 sm:mt-6 bg-amber-50 border-l-4 border-amber-400 p-3 sm:p-4 rounded-lg">
-                  <p className="text-xs sm:text-sm text-gray-700">
-                    <span className="font-semibold">*Note:</span> All extra services are subject to availability and separate payment.
-                  </p>
-                </div>
-            </div>
+             </div>
+             
+             {/* Group Booking CTA */}
+             <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 text-white flex flex-col justify-center">
+                <Users className="w-10 h-10 text-[#008DDA] mb-4" />
+                <h3 className="text-2xl font-bold mb-2">Group Bookings?</h3>
+                <p className="text-gray-400 mb-6">
+                    We offer special discounts for schools, colleges, tuition classes, and large corporate groups.
+                </p>
+                <button className="bg-[#008DDA] text-white py-3 px-6 rounded-xl font-bold hover:bg-[#0077b6] transition w-fit">
+                    Contact for Group Rates
+                </button>
+             </div>
+          </div>
 
-            {/* Special Discount for Group Booking CTA */}
-            <div className="bg-gradient-to-br from-[#008DDA] to-[#0066a8] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-                <div className="relative z-10">
-                  <div className="bg-white/20 backdrop-blur-sm p-3 sm:p-4 rounded-full inline-block mb-5 sm:mb-6">
-                    <Star className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-300" fill="currentColor" />
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-                    Special Group Discounts!
-                  </h2>
-                  <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-95 leading-relaxed">
-                    Planning a <span className="font-bold">corporate event</span>, <span className="font-bold">wedding</span>, or <span className="font-bold">large family reunion</span>? 
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 opacity-90">
-                    Contact us for customized packages and exclusive group rates!
-                  </p>
-                  <a 
-                      href="/contact-us"
-                      className="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-10 sm:py-5 text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl text-[#008DDA] bg-white hover:bg-gray-50 transition-all duration-300 shadow-xl transform hover:scale-105 hover:shadow-2xl"
-                  >
-                      Get Group Pricing
-                      <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </a>
-                </div>
-            </div>
-
-        </article>
-
-      </div>
+        </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

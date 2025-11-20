@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, MapPin, Phone, Mail } from 'lucide-react';
+import Terms from '../assets/Images/Terms&Conditions.pdf';
+import PrivacyPolicy from '../assets/Images/PrivacyPolicy.pdf';
+
 
 import Logo from '../assets/Images/PLogo.png';
 
@@ -190,8 +193,38 @@ const Footer = () => {
 
         {/* Copyright Section */}
         <div className="mt-12 pt-8 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-500">
-            ©️ {currentYear} Rest & Relax Properties. All rights reserved.
+          <p className="text-sm text-gray-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <span>©️ {currentYear} Rest & Relax Properties. All rights reserved.</span>
+            <span className="hidden sm:inline">|</span>
+            <a 
+              href= {Terms} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#008DDA] transition-colors duration-300"
+            >
+              Terms & Conditions
+            </a>
+            <span className="hidden sm:inline">|</span>
+            <a 
+              href={PrivacyPolicy} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#008DDA] transition-colors duration-300"
+            >
+              Privacy Policy
+            </a>
+            <span className="hidden sm:inline">|</span>
+            <span>
+              Designed by{' '}
+              <a 
+                href="https://www.noontechstudio.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-[#008DDA] transition-colors duration-300"
+              >
+                Noon Tech Studio
+              </a>
+            </span>
           </p>
         </div>
       </div>
