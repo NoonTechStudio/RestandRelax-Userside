@@ -8,6 +8,7 @@ import BookingDemo from '../components/BookingSection';
 import WhyUs from '../components/WhyUs';
 import Footer from '../components/Footer';
 import PartnerWithUs from '../components/PartnerWithUs';
+import PoolParty from '../components/PoolParty';
 
 function Home() {
   return (
@@ -17,6 +18,7 @@ function Home() {
         <Events />
         <About />
         <Locations />
+        <PoolParty />
         <BookingDemo />
         <WhyUs />
         <PartnerWithUs />
