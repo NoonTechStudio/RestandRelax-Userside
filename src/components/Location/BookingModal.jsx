@@ -1,24 +1,37 @@
-import { X, CheckCircle, Calendar, User, Phone, MapPin, Utensils, Star, Shield, Clock, CreditCard, Download } from 'lucide-react';
-import { formatDate } from '../../utils/locations/locationUitls';
-import { useState, useEffect } from 'react';
+import {
+  X,
+  CheckCircle,
+  Calendar,
+  User,
+  Phone,
+  MapPin,
+  Utensils,
+  Star,
+  Shield,
+  Clock,
+  CreditCard,
+  Download,
+} from "lucide-react";
+import { formatDate } from "../../utils/locations/locationUitls";
+import { useState, useEffect } from "react";
 
-const BookingModal = ({ 
-  showBookingModal, 
-  setShowBookingModal, 
-  bookingForm, 
-  onInputChange, 
-  onSubmit, 
-  checkInDate, 
-  checkOutDate, 
-  adults, 
-  kids, 
-  location 
+const BookingModal = ({
+  showBookingModal,
+  setShowBookingModal,
+  bookingForm,
+  onInputChange,
+  onSubmit,
+  checkInDate,
+  checkOutDate,
+  adults,
+  kids,
+  location,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [bookingData, setBookingData] = useState(null);
   const [bookedDates, setBookedDates] = useState([]);
-  const [paymentStep, setPaymentStep] = useState('booking');
+  const [paymentStep, setPaymentStep] = useState("booking");
   const [razorpayOrder, setRazorpayOrder] = useState(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [tokenAmount, setTokenAmount] = useState(3000); // Default token amount
@@ -30,8 +43,8 @@ const BookingModal = ({
   useEffect(() => {
     const loadRazorpay = () => {
       return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
         script.onload = () => resolve(true);
         script.onerror = () => resolve(false);
         document.body.appendChild(script);
@@ -49,19 +62,21 @@ const BookingModal = ({
       fetchBookedDates();
       setBookingConfirmed(false);
       setBookingData(null);
-      setPaymentStep('booking');
+      setPaymentStep("booking");
     }
   }, [showBookingModal, location]);
 
   const fetchBookedDates = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookings/dates/${location._id}`);
+      const response = await fetch(
+        `${API_BASE_URL}/bookings/dates/${location._id}`,
+      );
       const result = await response.json();
       if (result.success) {
         setBookedDates(result.bookedDates);
       }
     } catch (error) {
-      console.error('Error fetching booked dates:', error);
+      console.error("Error fetching booked dates:", error);
     }
   };
 
@@ -70,16 +85,17 @@ const BookingModal = ({
 
   const calculateTotalPrice = () => {
     // If night stay is not available, treat as single day booking (1 night)
-    const nights = isNightStayAvailable 
+    const nights = isNightStayAvailable
       ? Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))
       : 1;
 
-    const basePrice = location?.pricing?.pricePerAdult || location?.basePrice || 1000;
-    const adultPrice = (basePrice * adults * nights);
+    const basePrice =
+      location?.pricing?.pricePerAdult || location?.basePrice || 1000;
+    const adultPrice = basePrice * adults * nights;
     const kidPrice = (location?.pricing?.pricePerKid || 500) * kids * nights;
     // Removed food charge calculation
     // const foodCharge = bookingForm.food ? (adults + kids) * 500 * nights : 0;
-    
+
     return adultPrice + kidPrice; // Removed foodCharge from total
   };
 
@@ -91,15 +107,17 @@ const BookingModal = ({
   // PDF Download Function
   const downloadPDF = async (bookingId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/download-pdf`);
-      
+      const response = await fetch(
+        `${API_BASE_URL}/bookings/${bookingId}/download-pdf`,
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to download PDF');
+        throw new Error("Failed to download PDF");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `booking-confirmation-${bookingId}.pdf`;
       document.body.appendChild(a);
@@ -107,15 +125,15 @@ const BookingModal = ({
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('PDF download failed:', error);
-      alert('Failed to download PDF. Please try again.');
+      console.error("PDF download failed:", error);
+      alert("Failed to download PDF. Please try again.");
     }
   };
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const totalPrice = calculateTotalPrice();
       const remainingAmount = calculateRemainingAmount();
@@ -130,21 +148,21 @@ const BookingModal = ({
         adults: adults,
         kids: kids,
         withFood: bookingForm.food,
-        paymentType: 'token',
+        paymentType: "token",
         amountPaid: tokenAmount,
         remainingAmount: remainingAmount,
         pricing: {
           pricePerAdult: location?.pricing?.pricePerAdult || 1000,
           pricePerKid: location?.pricing?.pricePerKid || 500,
           extraPersonCharge: location?.pricing?.extraPersonCharge || 0,
-          totalPrice: totalPrice
-        }
+          totalPrice: totalPrice,
+        },
       };
 
       const response = await fetch(`${API_BASE_URL}/bookings`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(bookingPayload),
       });
@@ -154,13 +172,13 @@ const BookingModal = ({
       if (result.success) {
         setBookingData(result.booking);
         await createPaymentOrder(result.booking._id, tokenAmount);
-        setPaymentStep('payment');
+        setPaymentStep("payment");
       } else {
-        alert(result.error || 'Booking failed. Please try again.');
+        alert(result.error || "Booking failed. Please try again.");
       }
     } catch (error) {
-      console.error('Booking error:', error);
-      alert('Booking failed. Please try again.');
+      console.error("Booking error:", error);
+      alert("Booking failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -169,16 +187,16 @@ const BookingModal = ({
   const createPaymentOrder = async (bookingId, amount) => {
     try {
       const response = await fetch(`${API_BASE_URL}/payments/create-order`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           bookingId: bookingId,
           amount: amount,
-          currency: 'INR',
-          userEmail: bookingForm.email || '',
-          userPhone: bookingForm.phone
+          currency: "INR",
+          userEmail: bookingForm.email || "",
+          userPhone: bookingForm.phone,
         }),
       });
 
@@ -188,18 +206,18 @@ const BookingModal = ({
         setRazorpayOrder(result);
         return result;
       } else {
-        throw new Error(result.error || 'Failed to create payment order');
+        throw new Error(result.error || "Failed to create payment order");
       }
     } catch (error) {
-      console.error('Payment order creation error:', error);
-      alert('Payment initialization failed. Please try again.');
+      console.error("Payment order creation error:", error);
+      alert("Payment initialization failed. Please try again.");
       throw error;
     }
   };
 
   const initiateRazorpayPayment = () => {
     if (!razorpayOrder || !window.Razorpay) {
-      alert('Payment system not ready. Please try again.');
+      alert("Payment system not ready. Please try again.");
       return;
     }
 
@@ -209,9 +227,9 @@ const BookingModal = ({
       key: RAZORPAY_KEY_ID,
       amount: razorpayOrder.order.amount,
       currency: razorpayOrder.order.currency,
-      name: 'Your Resort Name',
+      name: "Your Resort Name",
       description: `Token payment for ${location.name}`,
-      image: '/logo.png',
+      image: "/logo.png",
       order_id: razorpayOrder.order.id,
       handler: async function (response) {
         await verifyPayment(response);
@@ -219,21 +237,21 @@ const BookingModal = ({
       prefill: {
         name: bookingForm.name,
         contact: bookingForm.phone,
-        email: bookingForm.email || '',
+        email: bookingForm.email || "",
       },
       notes: {
         bookingId: bookingData._id,
         location: location.name,
-        paymentType: 'token'
+        paymentType: "token",
       },
       theme: {
-        color: '#4F46E5'
+        color: "#4F46E5",
       },
       modal: {
-        ondismiss: function() {
+        ondismiss: function () {
           setPaymentProcessing(false);
-        }
-      }
+        },
+      },
     };
 
     const razorpayInstance = new window.Razorpay(options);
@@ -243,49 +261,51 @@ const BookingModal = ({
   const verifyPayment = async (paymentResponse) => {
     try {
       const verifyResponse = await fetch(`${API_BASE_URL}/payments/verify`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           razorpay_order_id: paymentResponse.razorpay_order_id,
           razorpay_payment_id: paymentResponse.razorpay_payment_id,
           razorpay_signature: paymentResponse.razorpay_signature,
-          bookingId: bookingData._id
+          bookingId: bookingData._id,
         }),
       });
 
       const result = await verifyResponse.json();
 
       if (result.success) {
-        setPaymentStep('confirmed');
+        setPaymentStep("confirmed");
         setBookingConfirmed(true);
         await fetchBookedDates();
       } else {
-        alert('Payment verification failed: ' + result.error);
+        alert("Payment verification failed: " + result.error);
       }
     } catch (error) {
-      console.error('Payment verification error:', error);
-      alert('Payment verification failed. Please contact support.');
+      console.error("Payment verification error:", error);
+      alert("Payment verification failed. Please contact support.");
     } finally {
       setPaymentProcessing(false);
     }
   };
 
   const getBookedDatesInfo = () => {
-    const bookedInSelection = bookedDates.filter(booked => {
+    const bookedInSelection = bookedDates.filter((booked) => {
       const bookedDate = new Date(booked.date);
       return bookedDate >= checkInDate && bookedDate < checkOutDate;
     });
 
     if (bookedInSelection.length > 0) {
-      const paidBookings = bookedInSelection.filter(b => b.status === 'paid');
-      const pendingBookings = bookedInSelection.filter(b => b.status === 'pending');
-      
+      const paidBookings = bookedInSelection.filter((b) => b.status === "paid");
+      const pendingBookings = bookedInSelection.filter(
+        (b) => b.status === "pending",
+      );
+
       return {
         hasConflict: true,
         paidCount: paidBookings.length,
-        pendingCount: pendingBookings.length
+        pendingCount: pendingBookings.length,
       };
     }
 
@@ -298,12 +318,12 @@ const BookingModal = ({
     setShowBookingModal(false);
     setBookingConfirmed(false);
     setBookingData(null);
-    setPaymentStep('booking');
+    setPaymentStep("booking");
     setRazorpayOrder(null);
   };
 
   // Payment View
-  if (paymentStep === 'payment' && bookingData) {
+  if (paymentStep === "payment" && bookingData) {
     const totalPrice = calculateTotalPrice();
     const remainingAmount = calculateRemainingAmount();
 
@@ -318,11 +338,11 @@ const BookingModal = ({
                   <CreditCard className="h-12 w-12 text-blue-600 relative z-10" />
                 </div>
               </div>
-              
+
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Pay Token Amount
               </h3>
-              
+
               <p className="text-gray-600 mb-4 text-sm">
                 Secure token payment processed by Razorpay
               </p>
@@ -337,18 +357,26 @@ const BookingModal = ({
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Location:</span>
-                    <span className="font-medium text-xs truncate ml-2">{location.name}</span>
+                    <span className="font-medium text-xs truncate ml-2">
+                      {location.name}
+                    </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Total Amount:</span>
-                    <span className="font-medium text-xs">₹{totalPrice.toLocaleString()}</span>
+                    <span className="font-medium text-xs">
+                      ₹{totalPrice.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-xs">Remaining Amount:</span>
-                    <span className="font-medium text-xs">₹{remainingAmount.toLocaleString()}</span>
+                    <span className="text-gray-600 text-xs">
+                      Remaining Amount:
+                    </span>
+                    <span className="font-medium text-xs">
+                      ₹{remainingAmount.toLocaleString()}
+                    </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                     <span className="text-gray-600 font-semibold text-sm">
                       Token Amount:
@@ -362,12 +390,18 @@ const BookingModal = ({
                 {/* Non-refundable notice */}
                 <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
                   <p className="font-medium">⚠️ Important Notice:</p>
-                  <p className="mt-1">This token amount is <strong>non-refundable</strong> and will not be returned in case of cancellation.</p>
+                  <p className="mt-1">
+                    This token amount is <strong>non-refundable</strong> and
+                    will not be returned in case of cancellation.
+                  </p>
                 </div>
 
                 <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
                   <p className="font-medium">💡 Payment Note:</p>
-                  <p className="mt-1">Remaining ₹{remainingAmount.toLocaleString()} to be paid at the property during check-in.</p>
+                  <p className="mt-1">
+                    Remaining ₹{remainingAmount.toLocaleString()} to be paid at
+                    the property during check-in.
+                  </p>
                 </div>
               </div>
 
@@ -389,10 +423,26 @@ const BookingModal = ({
                     </>
                   )}
                 </button>
-                
+
                 <button
-                  onClick={() => setPaymentStep('booking')}
-                  className="w-full bg-gray-500 text-white font-semibold py-3 rounded-lg hover:bg-gray-600 transition-all duration-300 text-sm"
+                  onClick={async () => {
+                    // Try to delete booking if it exists
+                    if (bookingData && bookingData._id) {
+                      try {
+                        await fetch(
+                          `${API_BASE_URL}/bookings/${bookingData._id}`,
+                          {
+                            method: "DELETE",
+                          },
+                        );
+                      } catch (err) {
+                        // Ignore errors, just continue
+                        console.warn("Delete failed, continuing:", err);
+                      }
+                    }
+                    setPaymentStep("booking");
+                  }}
+                  className="w-full bg-gray-500 text-white font-semibold py-2.5 sm:py-3 rounded-lg hover:bg-gray-600 transition-all duration-300 text-xs sm:text-sm"
                   disabled={paymentProcessing}
                 >
                   Back to Booking
@@ -413,7 +463,7 @@ const BookingModal = ({
   }
 
   // Confirmation View
-  if (paymentStep === 'confirmed' && bookingData) {
+  if (paymentStep === "confirmed" && bookingData) {
     const totalPrice = calculateTotalPrice();
     const remainingAmount = calculateRemainingAmount();
 
@@ -428,11 +478,11 @@ const BookingModal = ({
                   <CheckCircle className="h-12 w-12 text-green-500 relative z-10" />
                 </div>
               </div>
-              
+
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 Token Payment Confirmed!
               </h3>
-              
+
               <p className="text-gray-600 mb-4 text-sm">
                 Your token payment has been successfully processed.
                 {bookingForm.email && (
@@ -452,40 +502,58 @@ const BookingModal = ({
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Location:</span>
-                    <span className="font-medium text-xs truncate ml-2">{location.name}</span>
+                    <span className="font-medium text-xs truncate ml-2">
+                      {location.name}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Check-in:</span>
-                    <span className="font-medium text-xs">{formatDate(checkInDate)}</span>
+                    <span className="font-medium text-xs">
+                      {formatDate(checkInDate)}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Check-out:</span>
-                    <span className="font-medium text-xs">{formatDate(checkOutDate)}</span>
+                    <span className="font-medium text-xs">
+                      {formatDate(checkOutDate)}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Guests:</span>
-                    <span className="font-medium text-xs">{adults} adults, {kids} kids</span>
+                    <span className="font-medium text-xs">
+                      {adults} adults, {kids} kids
+                    </span>
                   </div>
                   {bookingForm.food && (
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-xs">Food Service:</span>
-                      <span className="font-medium text-green-600 text-xs">Included</span>
+                      <span className="text-gray-600 text-xs">
+                        Food Service:
+                      </span>
+                      <span className="font-medium text-green-600 text-xs">
+                        Included
+                      </span>
                     </div>
                   )}
-                  
+
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Total Amount:</span>
-                    <span className="font-medium text-xs">₹{totalPrice.toLocaleString()}</span>
+                    <span className="font-medium text-xs">
+                      ₹{totalPrice.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Amount Paid:</span>
-                    <span className="font-medium text-green-600 text-xs">₹{tokenAmount.toLocaleString()}</span>
+                    <span className="font-medium text-green-600 text-xs">
+                      ₹{tokenAmount.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 text-xs">Remaining:</span>
-                    <span className="font-medium text-orange-600 text-xs">₹{remainingAmount.toLocaleString()}</span>
+                    <span className="font-medium text-orange-600 text-xs">
+                      ₹{remainingAmount.toLocaleString()}
+                    </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                     <span className="text-gray-600 font-semibold text-sm">
                       Token Paid:
@@ -499,12 +567,19 @@ const BookingModal = ({
                 {/* Non-refundable notice in confirmation */}
                 <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
                   <p className="font-medium">⚠️ Non-Refundable Token:</p>
-                  <p className="mt-1">This token amount of ₹{tokenAmount.toLocaleString()} is <strong>non-refundable</strong> and will not be returned in case of cancellation.</p>
+                  <p className="mt-1">
+                    This token amount of ₹{tokenAmount.toLocaleString()} is{" "}
+                    <strong>non-refundable</strong> and will not be returned in
+                    case of cancellation.
+                  </p>
                 </div>
 
                 <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
                   <p className="font-medium">📝 Important:</p>
-                  <p className="mt-1">Please pay the remaining ₹{remainingAmount.toLocaleString()} at the property during check-in.</p>
+                  <p className="mt-1">
+                    Please pay the remaining ₹{remainingAmount.toLocaleString()}{" "}
+                    at the property during check-in.
+                  </p>
                 </div>
               </div>
 
@@ -543,7 +618,7 @@ const BookingModal = ({
   if (!showBookingModal) return null;
 
   const totalPrice = calculateTotalPrice();
-  const nights = isNightStayAvailable 
+  const nights = isNightStayAvailable
     ? Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))
     : 1;
 
@@ -553,13 +628,17 @@ const BookingModal = ({
         {/* Header - Compact */}
         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900">Complete Booking</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              Complete Booking
+            </h3>
             <p className="text-gray-500 text-xs mt-1 flex items-center gap-1 truncate">
               <Star className="w-3 h-3 text-yellow-400 fill-current flex-shrink-0" />
-              <span className="truncate">{location.rating || '4.8'} • {location.name}</span>
+              <span className="truncate">
+                {location.rating || "4.8"} • {location.name}
+              </span>
             </p>
           </div>
-          <button 
+          <button
             onClick={handleCloseModal}
             className="p-1 hover:bg-gray-100 rounded transition-all duration-200 group flex-shrink-0 ml-2"
           >
@@ -584,7 +663,8 @@ const BookingModal = ({
                       Date Availability Notice
                     </h4>
                     <p className="text-yellow-700 text-xs">
-                      Some dates in your selection may be booked. We'll confirm availability within 24 hours.
+                      Some dates in your selection may be booked. We'll confirm
+                      availability within 24 hours.
                     </p>
                   </div>
                 </div>
@@ -599,7 +679,7 @@ const BookingModal = ({
                     <User className="w-4 h-4 text-blue-600" />
                     Personal Information
                   </h4>
-                  
+
                   <form onSubmit={handleBookingSubmit} className="space-y-3">
                     <div className="grid grid-cols-1 gap-3">
                       <div>
@@ -641,7 +721,7 @@ const BookingModal = ({
                           <input
                             type="email"
                             name="email"
-                            value={bookingForm.email || ''}
+                            value={bookingForm.email || ""}
                             onChange={onInputChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-sm"
                             placeholder="your@email.com"
@@ -670,12 +750,16 @@ const BookingModal = ({
 
                     {/* Token Amount Selection */}
                     <div className="border border-gray-200 rounded-lg p-3">
-                      <h5 className="text-xs font-semibold text-gray-900 mb-2">Token Amount</h5>
+                      <h5 className="text-xs font-semibold text-gray-900 mb-2">
+                        Token Amount
+                      </h5>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <select
                             value={tokenAmount}
-                            onChange={(e) => setTokenAmount(Number(e.target.value))}
+                            onChange={(e) =>
+                              setTokenAmount(Number(e.target.value))
+                            }
                             className="text-xs border border-gray-300 rounded px-2 py-1"
                           >
                             <option value={1000}>₹1,000</option>
@@ -683,19 +767,35 @@ const BookingModal = ({
                             <option value={5000}>₹5,000</option>
                           </select>
                           <span className="text-xs text-gray-500">
-                            (Remaining: ₹{Math.max(0, totalPrice - tokenAmount).toLocaleString()})
+                            (Remaining: ₹
+                            {Math.max(
+                              0,
+                              totalPrice - tokenAmount,
+                            ).toLocaleString()}
+                            )
                           </span>
                         </div>
                       </div>
-                      
+
                       {/* Non-refundable notice */}
                       <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
                         <p className="font-medium">⚠️ Non-Refundable Token:</p>
-                        <p>This token amount is <strong>non-refundable</strong> and will not be returned in case of cancellation.</p>
+                        <p>
+                          This token amount is <strong>non-refundable</strong>{" "}
+                          and will not be returned in case of cancellation.
+                        </p>
                       </div>
 
                       <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-                        <p>💡 Pay ₹{tokenAmount.toLocaleString()} now as token amount. Remaining ₹{Math.max(0, totalPrice - tokenAmount).toLocaleString()} to be paid at the property during check-in.</p>
+                        <p>
+                          💡 Pay ₹{tokenAmount.toLocaleString()} now as token
+                          amount. Remaining ₹
+                          {Math.max(
+                            0,
+                            totalPrice - tokenAmount,
+                          ).toLocaleString()}{" "}
+                          to be paid at the property during check-in.
+                        </p>
                       </div>
                     </div>
 
@@ -746,7 +846,7 @@ const BookingModal = ({
                     <Calendar className="w-4 h-4 text-blue-600" />
                     Booking Summary
                   </h4>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600 text-xs">Dates</span>
@@ -754,14 +854,14 @@ const BookingModal = ({
                         {formatDate(checkInDate)} - {formatDate(checkOutDate)}
                       </span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600 text-xs">Duration</span>
                       <span className="font-medium text-xs">
-                        {nights} {isNightStayAvailable ? 'nights' : 'day'}
+                        {nights} {isNightStayAvailable ? "nights" : "day"}
                       </span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                       <span className="text-gray-600 text-xs">Guests</span>
                       <span className="font-medium text-xs">
@@ -771,37 +871,75 @@ const BookingModal = ({
 
                     {bookingForm.food && (
                       <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-                        <span className="text-gray-600 text-xs">Food Service:</span>
-                        <span className="font-medium text-green-600 text-xs">Included</span>
+                        <span className="text-gray-600 text-xs">
+                          Food Service:
+                        </span>
+                        <span className="font-medium text-green-600 text-xs">
+                          Included
+                        </span>
                       </div>
                     )}
 
                     <div className="pt-2">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-gray-600 text-xs">Base Price</span>
-                        <span className="text-xs">₹{((location?.pricing?.pricePerAdult || 1000) * adults * nights).toLocaleString()}</span>
+                        <span className="text-gray-600 text-xs">
+                          Base Price
+                        </span>
+                        <span className="text-xs">
+                          ₹
+                          {(
+                            (location?.pricing?.pricePerAdult || 1000) *
+                            adults *
+                            nights
+                          ).toLocaleString()}
+                        </span>
                       </div>
                       {kids > 0 && (
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-gray-600 text-xs">Kids Price</span>
-                          <span className="text-xs">₹{((location?.pricing?.pricePerKid || 500) * kids * nights).toLocaleString()}</span>
+                          <span className="text-gray-600 text-xs">
+                            Kids Price
+                          </span>
+                          <span className="text-xs">
+                            ₹
+                            {(
+                              (location?.pricing?.pricePerKid || 500) *
+                              kids *
+                              nights
+                            ).toLocaleString()}
+                          </span>
                         </div>
                       )}
                       {/* Removed food charges calculation from summary */}
                       <div className="flex justify-between items-center pt-2 border-t border-gray-300">
-                        <span className="text-sm font-bold text-gray-900">Total</span>
-                        <span className="text-base font-bold text-blue-600">₹{totalPrice.toLocaleString()}</span>
+                        <span className="text-sm font-bold text-gray-900">
+                          Total
+                        </span>
+                        <span className="text-base font-bold text-blue-600">
+                          ₹{totalPrice.toLocaleString()}
+                        </span>
                       </div>
 
                       {/* Payment Breakdown for Token Payment */}
                       <div className="mt-2 pt-2 border-t border-gray-200">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-gray-600 text-xs">Token Amount:</span>
-                          <span className="text-xs font-medium text-green-600">₹{tokenAmount.toLocaleString()}</span>
+                          <span className="text-gray-600 text-xs">
+                            Token Amount:
+                          </span>
+                          <span className="text-xs font-medium text-green-600">
+                            ₹{tokenAmount.toLocaleString()}
+                          </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600 text-xs">Remaining:</span>
-                          <span className="text-xs font-medium text-orange-600">₹{Math.max(0, totalPrice - tokenAmount).toLocaleString()}</span>
+                          <span className="text-gray-600 text-xs">
+                            Remaining:
+                          </span>
+                          <span className="text-xs font-medium text-orange-600">
+                            ₹
+                            {Math.max(
+                              0,
+                              totalPrice - tokenAmount,
+                            ).toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -811,7 +949,9 @@ const BookingModal = ({
                   <div className="mt-3 bg-white border border-gray-200 rounded p-2">
                     <div className="flex items-center gap-2 mb-1">
                       <Shield className="w-3 h-3 text-green-600" />
-                      <span className="font-medium text-green-800 text-xs">Secure Payment</span>
+                      <span className="font-medium text-green-800 text-xs">
+                        Secure Payment
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-green-700">
                       <CreditCard className="w-3 h-3 text-green-600" />

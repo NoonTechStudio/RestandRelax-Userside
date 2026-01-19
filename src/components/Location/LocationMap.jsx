@@ -1,4 +1,4 @@
-import { MapPin, Flag, Navigation } from 'lucide-react';
+import { MapPin, Flag, Navigation } from "lucide-react";
 
 const LocationMap = ({ location }) => {
   // Get coordinates from the nested structure
@@ -8,48 +8,47 @@ const LocationMap = ({ location }) => {
 
   // Generate OpenStreetMap link
   const generateOSMLink = () => {
-    if (!latitude || !longitude) return '#';
+    if (!latitude || !longitude) return "#";
     return `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}&zoom=17`;
   };
 
   // Generate Google Maps link (alternative option)
   const generateGoogleMapsLink = () => {
-    if (!latitude || !longitude) return '#';
+    if (!latitude || !longitude) return "#";
     return `https://www.google.com/maps?q=${latitude},${longitude}&z=17`;
   };
 
   // ✅ Updated map embed for proper zoom & centering
   const renderMap = () => {
-  if (!latitude || !longitude) {
-    return (
-      <div className="w-full h-100 bg-gray-100 flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <MapPin size={48} className="mx-auto mb-2" />
-          <p>Map location not available</p>
+    if (!latitude || !longitude) {
+      return (
+        <div className="w-full h-100 bg-gray-100 flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <MapPin size={48} className="mx-auto mb-2" />
+            <p>Map location not available</p>
+          </div>
         </div>
-      </div>
+      );
+    }
+
+    // ✅ Use /map.html with zoom parameter for reliable zoomed-in view
+    return (
+      <iframe
+        width="100%"
+        height="100%"
+        frameBorder="0"
+        scrolling="no"
+        marginHeight="0"
+        marginWidth="0"
+        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.0008},${latitude - 0.0008},${longitude + 0.0008},${latitude + 0.0008}&layer=mapnik&marker=${latitude},${longitude}`}
+        className="h-96 w-full"
+        title="Location Map"
+      />
     );
-  }
-
-  // ✅ Use /map.html with zoom parameter for reliable zoomed-in view
-  return (
-    <iframe
-      width="100%"
-      height="100%"
-      frameBorder="0"
-      scrolling="no"
-      marginHeight="0"
-      marginWidth="0"
-      src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.0008},${latitude - 0.0008},${longitude + 0.0008},${latitude + 0.0008}&layer=mapnik&marker=${latitude},${longitude}`}
-      className="h-96 w-full"
-      title="Location Map"
-    />
-  );
-};
-
+  };
 
   const formatAddress = () => {
-    if (!address) return 'Address information not available';
+    if (!address) return "Address information not available";
 
     const parts = [];
     if (address.line1) parts.push(address.line1);
@@ -58,7 +57,7 @@ const LocationMap = ({ location }) => {
     if (address.state) parts.push(address.state);
     if (address.pincode) parts.push(address.pincode);
 
-    return parts.join(', ') || 'Address information not available';
+    return parts.join(", ") || "Address information not available";
   };
 
   // Sample nearby places - you can replace with actual data from your API
@@ -66,7 +65,7 @@ const LocationMap = ({ location }) => {
     "Sursagar Lake",
     "Waghodia Road",
     "Vadodara City Center",
-    "Local Markets"
+    "Local Markets",
   ];
 
   return (

@@ -3,7 +3,7 @@ const LoadingSkeleton = () => (
     <div className="max-w-7xl mx-auto px-6 py-6">
       <div className="animate-pulse">
         <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-        
+
         {/* Images skeleton */}
         <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[500px] rounded-xl overflow-hidden mb-8">
           <div className="col-span-2 row-span-2 bg-gray-200"></div>

@@ -1,35 +1,44 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Heart, MapPin, Star, Calendar, Users, Clock } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  MapPin,
+  Star,
+  Calendar,
+  Users,
+  Clock,
+} from "lucide-react";
 import styled from "styled-components";
 
 // Importing images
-import img1 from '../assets/Images/Picnic.jpeg';
-import img2 from '../assets/Images/familygathering.jpg';
-import img3 from '../assets/Images/KittyParty.jpeg';
-import img4 from '../assets/Images/EventOrganisin.jpeg';
-import img5 from '../assets/Images/weddingdestination.jpg';
-import img6 from '../assets/Images/preweddingshoot.jpg';
-import img7 from '../assets/Images/birthdayPlanning.webp';
-import img8 from '../assets/Images/corporateevent.webp';
-import img9 from '../assets/Images/schoolpicnic.png';
-import img10 from '../assets/Images/CorporateShoot.jpeg';
-import img11 from '../assets/Images/musicalbum.jpeg';
-import img12 from '../assets/Images/movieshooting.avif';
+import img1 from "../assets/Images/Picnic.jpeg";
+import img2 from "../assets/Images/familygathering.jpg";
+import img3 from "../assets/Images/KittyParty.jpeg";
+import img4 from "../assets/Images/EventOrganisin.jpeg";
+import img5 from "../assets/Images/weddingdestination.jpg";
+import img6 from "../assets/Images/preweddingshoot.jpg";
+import img7 from "../assets/Images/birthdayPlanning.webp";
+import img8 from "../assets/Images/corporateevent.webp";
+import img9 from "../assets/Images/schoolpicnic.png";
+import img10 from "../assets/Images/CorporateShoot.jpeg";
+import img11 from "../assets/Images/musicalbum.jpeg";
+import img12 from "../assets/Images/movieshooting.avif";
 
 const eventImages = {
-  'One Day Picnic': img1,
-  'Family Gatherings': img2,
-  'Kitty Parties': img3,
-  'Event Organizing': img4,
-  'Wedding Destination': img5,
-  'Pre-wedding Photoshoots': img6,
-  'Birthday Party Planning': img7,
-  'Corporate Event Planning': img8,
-  'School Picnic Arrangements': img9,
-  'Corporate Photoshoots': img10,
-  'Music Album Shoot Locations': img11,
-  'Movie Shooting Locations': img12
+  "One Day Picnic": img1,
+  "Family Gatherings": img2,
+  "Kitty Parties": img3,
+  "Event Organizing": img4,
+  "Wedding Destination": img5,
+  "Pre-wedding Photoshoots": img6,
+  "Birthday Party Planning": img7,
+  "Corporate Event Planning": img8,
+  "School Picnic Arrangements": img9,
+  "Corporate Photoshoots": img10,
+  "Music Album Shoot Locations": img11,
+  "Movie Shooting Locations": img12,
 };
 
 // Helper to parse capacity string (e.g., '10-80 People') into a number range [min, max]
@@ -39,81 +48,81 @@ const parseCapacity = (capacityStr) => {
     return { min: parseInt(match[1]), max: parseInt(match[2]) };
   }
   // Default to a wide range if format is unexpected
-  return { min: 0, max: 1000 }; 
+  return { min: 0, max: 1000 };
 };
 
 const events = [
-  { 
-    title: 'One Day Picnic', 
-    image: eventImages['One Day Picnic'], 
-    properties: ['Misty-Wood', 'Riverfront','Swarg Maru Gaam', 'Ambawadi'], 
-    capacity: '5-100 People'
+  {
+    title: "One Day Picnic",
+    image: eventImages["One Day Picnic"],
+    properties: ["Misty-Wood", "Riverfront", "Swarg Maru Gaam", "Ambawadi"],
+    capacity: "5-100 People",
   },
-  { 
-    title: 'Family Gatherings', 
-    image: eventImages['Family Gatherings'], 
-    properties: ['Misty-Wood','Riverfront', 'Ambawadi'], 
-    capacity: '10-80 People'
+  {
+    title: "Family Gatherings",
+    image: eventImages["Family Gatherings"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi"],
+    capacity: "10-80 People",
   },
-  { 
-    title: 'Kitty Parties', 
-    image: eventImages['Kitty Parties'], 
-    properties: ['Misty-Wood', 'Ambawadi', 'Swarg Maru Gaam'], 
-    capacity: '20-40 People'
+  {
+    title: "Kitty Parties",
+    image: eventImages["Kitty Parties"],
+    properties: ["Misty-Wood", "Ambawadi", "Swarg Maru Gaam"],
+    capacity: "20-40 People",
   },
-  { 
-    title: 'Event Organizing', 
-    image: eventImages['Event Organizing'], 
-    properties: ['Misty-Wood', 'Riverfront', 'Ambawadi'], 
-    capacity: '100-500 People'
+  {
+    title: "Event Organizing",
+    image: eventImages["Event Organizing"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi"],
+    capacity: "100-500 People",
   },
-  { 
-    title: 'Wedding Destination', 
-    image: eventImages['Wedding Destination'], 
-    properties: ['Riverfront', 'Ambawadi', 'Misty-Wood'], 
-    capacity: '100-300 People'
+  {
+    title: "Wedding Destination",
+    image: eventImages["Wedding Destination"],
+    properties: ["Riverfront", "Ambawadi", "Misty-Wood"],
+    capacity: "100-300 People",
   },
-  { 
-    title: 'Pre-wedding Photoshoots', 
-    image: eventImages['Pre-wedding Photoshoots'], 
-    properties: ['Riverfront', 'Swarg Maru Gaam'],
-    capacity: '10-20 People'
+  {
+    title: "Pre-wedding Photoshoots",
+    image: eventImages["Pre-wedding Photoshoots"],
+    properties: ["Riverfront", "Swarg Maru Gaam"],
+    capacity: "10-20 People",
   },
-  { 
-    title: 'Birthday Party Planning', 
-    image: eventImages['Birthday Party Planning'], 
-    properties: ['Misty-Wood', 'Ambawadi', 'Riverfront'], 
-    capacity: '20-80 People'
+  {
+    title: "Birthday Party Planning",
+    image: eventImages["Birthday Party Planning"],
+    properties: ["Misty-Wood", "Ambawadi", "Riverfront"],
+    capacity: "20-80 People",
   },
-  { 
-    title: 'Corporate Event Planning', 
-    image: eventImages['Corporate Event Planning'], 
-    properties: ['Misty-Wood', 'Riverfront', 'Ambawadi'], 
-    capacity: '50-200 People'
+  {
+    title: "Corporate Event Planning",
+    image: eventImages["Corporate Event Planning"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi"],
+    capacity: "50-200 People",
   },
-  { 
-    title: 'School Picnic Arrangements', 
-    image: eventImages['School Picnic Arrangements'], 
-    properties: ['Misty-Wood', 'Riverfront', 'Ambawadi'], 
-    capacity: '100-500 People'
+  {
+    title: "School Picnic Arrangements",
+    image: eventImages["School Picnic Arrangements"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi"],
+    capacity: "100-500 People",
   },
-  { 
-    title: 'Corporate Photoshoots', 
-    image: eventImages['Corporate Photoshoots'], 
-    properties: ['Misty-Wood', 'Riverfront', 'Ambawadi'], 
-    capacity: '10-30 People'
+  {
+    title: "Corporate Photoshoots",
+    image: eventImages["Corporate Photoshoots"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi"],
+    capacity: "10-30 People",
   },
-  { 
-    title: 'Music Album Shoot Locations', 
-    image: eventImages['Music Album Shoot Locations'], 
-    properties: ['Misty-Wood', 'Riverfront', 'Ambawadi'], 
-    capacity: '15-75 People'
+  {
+    title: "Music Album Shoot Locations",
+    image: eventImages["Music Album Shoot Locations"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi"],
+    capacity: "15-75 People",
   },
-  { 
-    title: 'Movie Shooting Locations', 
-    image: eventImages['Movie Shooting Locations'], 
-    properties: ['Misty-Wood', 'Riverfront', 'Ambawadi', 'Swarg Maru Gaam'],
-    capacity: '20-50 People'
+  {
+    title: "Movie Shooting Locations",
+    image: eventImages["Movie Shooting Locations"],
+    properties: ["Misty-Wood", "Riverfront", "Ambawadi", "Swarg Maru Gaam"],
+    capacity: "20-50 People",
   },
 ];
 
@@ -135,7 +144,7 @@ const HeaderContainer = styled.div`
 `;
 
 const Heading = styled.h2`
-  font-family: 'Crimson Text', serif;
+  font-family: "Crimson Text", serif;
   font-size: 4rem;
   margin-bottom: 0.5rem;
   background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
@@ -155,7 +164,7 @@ const Heading = styled.h2`
 `;
 
 const Subheading = styled.p`
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 1.1rem;
   color: #718096;
   margin-bottom: 0;
@@ -178,13 +187,14 @@ const AutoScrollTrack = styled(motion.div)`
   display: flex;
   gap: 1.5rem;
   width: max-content;
-  animation: ${props => props.isAutoPlay ? 'scroll 120s linear infinite' : 'none'};
+  animation: ${(props) =>
+    props.isAutoPlay ? "scroll 120s linear infinite" : "none"};
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:hover {
     animation-play-state: paused;
   }
-  
+
   @keyframes scroll {
     0% {
       transform: translateX(0);
@@ -215,17 +225,17 @@ const NavigationButton = styled(motion.button)`
   justify-content: center;
   box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:hover {
     background: linear-gradient(135deg, #3182ce 0%, #2c5aa0 100%);
     box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
     transform: translateY(-2px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -251,7 +261,7 @@ const Card = styled(motion.div)`
   background: white;
   position: relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:hover {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     transform: translateY(-5px);
@@ -466,7 +476,7 @@ const ViewDetailsButton = styled.button`
   cursor: pointer;
   transition: background 0.3s ease;
   font-size: 0.9rem;
-  
+
   &:hover {
     background: #3182ce;
   }
@@ -476,13 +486,14 @@ const HeartIcon = styled(Heart)`
   position: absolute;
   top: 1rem;
   right: 1rem;
-  color: ${props => props.isFavorite ? '#e53e3e' : 'rgba(255, 255, 255, 0.9)'};
-  fill: ${props => props.isFavorite ? '#e53e3e' : 'none'};
+  color: ${(props) =>
+    props.isFavorite ? "#e53e3e" : "rgba(255, 255, 255, 0.9)"};
+  fill: ${(props) => (props.isFavorite ? "#e53e3e" : "none")};
   cursor: pointer;
   transition: all 0.2s;
   z-index: 10;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  
+
   &:hover {
     transform: scale(1.2);
   }
@@ -497,13 +508,65 @@ const Events = () => {
 
   // Updated mock property details with a capacity range
   const mockPropertyDetails = [
-    { name: 'Misty-Wood', location: 'Vadodara, Gujarat', features: ['Garden', 'Parking', 'Swimming Pool', 'AC', 'Catering'], capacityRange: { min: 20, max: 250 } },
-    { name: 'Swarg Maru Gaam', location: 'Padra, Gujarat', features: ['Farm View', 'Pool', 'Garden', 'BBQ', 'Nature'], capacityRange: { min: 5, max: 50 } },
-    { name: 'Ambawadi', location: 'Dabhoi, Gujarat', features: ['Forest View', 'Bonfire', 'Nature', 'Wildlife', 'Swimming Pool', 'BBQ', 'Outdoor Dining'], capacityRange: { min: 40, max: 400 } },
-    { name: 'Riverfront', location: 'Savli, Gujarat', features: ['River Bank', 'Flowing Water', 'Nature', 'Isolated Place', 'Sunset Viewpoint', 'Wildlife', 'Exotic Birds', 'BBQ'], capacityRange: { min: 10, max: 150 } },
-    { name: 'Modern Studio', location: 'Vadodara, Gujarat', features: ['Modern Decor', 'Lighting', 'Equipment'], capacityRange: { min: 10, max: 35 } },
-    { name: 'Office Rooftop', location: 'Ahmedabad, Gujarat', features: ['City View', 'Open Air', 'Bar'], capacityRange: { min: 30, max: 100 } },
-    { name: 'Urban Street Art', location: 'Surat, Gujarat', features: ['Graffiti', 'Raw Aesthetic'], capacityRange: { min: 5, max: 25 } },
+    {
+      name: "Misty-Wood",
+      location: "Vadodara, Gujarat",
+      features: ["Garden", "Parking", "Swimming Pool", "AC", "Catering"],
+      capacityRange: { min: 20, max: 250 },
+    },
+    {
+      name: "Swarg Maru Gaam",
+      location: "Padra, Gujarat",
+      features: ["Farm View", "Pool", "Garden", "BBQ", "Nature"],
+      capacityRange: { min: 5, max: 50 },
+    },
+    {
+      name: "Ambawadi",
+      location: "Dabhoi, Gujarat",
+      features: [
+        "Forest View",
+        "Bonfire",
+        "Nature",
+        "Wildlife",
+        "Swimming Pool",
+        "BBQ",
+        "Outdoor Dining",
+      ],
+      capacityRange: { min: 40, max: 400 },
+    },
+    {
+      name: "Riverfront",
+      location: "Savli, Gujarat",
+      features: [
+        "River Bank",
+        "Flowing Water",
+        "Nature",
+        "Isolated Place",
+        "Sunset Viewpoint",
+        "Wildlife",
+        "Exotic Birds",
+        "BBQ",
+      ],
+      capacityRange: { min: 10, max: 150 },
+    },
+    {
+      name: "Modern Studio",
+      location: "Vadodara, Gujarat",
+      features: ["Modern Decor", "Lighting", "Equipment"],
+      capacityRange: { min: 10, max: 35 },
+    },
+    {
+      name: "Office Rooftop",
+      location: "Ahmedabad, Gujarat",
+      features: ["City View", "Open Air", "Bar"],
+      capacityRange: { min: 30, max: 100 },
+    },
+    {
+      name: "Urban Street Art",
+      location: "Surat, Gujarat",
+      features: ["Graffiti", "Raw Aesthetic"],
+      capacityRange: { min: 5, max: 25 },
+    },
   ];
 
   const handleCardClick = (event) => {
@@ -528,7 +591,7 @@ const Events = () => {
       const newIndex = prevIndex + 1;
       return newIndex >= events.length ? 0 : newIndex;
     });
-    
+
     setTimeout(() => {
       setIsManualNav(false);
       setIsAutoPlay(true);
@@ -542,7 +605,7 @@ const Events = () => {
       const newIndex = prevIndex - 1;
       return newIndex < 0 ? events.length - 1 : newIndex;
     });
-    
+
     setTimeout(() => {
       setIsManualNav(false);
       setIsAutoPlay(true);
@@ -550,19 +613,21 @@ const Events = () => {
   };
 
   const handleRedirectToLocations = () => {
-    window.location.href = '/locations'
-  }
+    window.location.href = "/locations";
+  };
 
   const duplicatedEvents = [...events, ...events, ...events];
   const cardWidth = 300 + 24;
   const translateX = isManualNav ? -(currentIndex * cardWidth) : 0;
 
   // --- NEW LOGIC: Filter properties based on event requirements ---
-  const filteredProperties = selectedEvent 
-    ? mockPropertyDetails.filter(property => {
+  const filteredProperties = selectedEvent
+    ? mockPropertyDetails.filter((property) => {
         // 1. Check if the property is suitable for the event type (by name in properties array)
-        const isSuitableEventType = selectedEvent.properties.includes(property.name);
-        
+        const isSuitableEventType = selectedEvent.properties.includes(
+          property.name,
+        );
+
         if (!isSuitableEventType) {
           return false;
         }
@@ -571,7 +636,7 @@ const Events = () => {
         const eventCapacity = parseCapacity(selectedEvent.capacity);
         const propertyMin = property.capacityRange.min;
         const propertyMax = property.capacityRange.max;
-        
+
         // A property is valid if its capacity range overlaps with the event's required capacity range.
         // Simplified check: The property's max capacity must be greater than or equal to the event's minimum required capacity.
         // A more robust check: (eventMax >= propertyMin) AND (eventMin <= propertyMax)
@@ -640,41 +705,51 @@ const Events = () => {
           transition={{ duration: 0.5 }}
         >
           <PropertiesTitle>
-            Recommended Venues for <span style={{ color: '#008DDA' }}>{selectedEvent.title}</span>
+            Recommended Venues for{" "}
+            <span style={{ color: "#008DDA" }}>{selectedEvent.title}</span>
           </PropertiesTitle>
           <PropertiesGrid>
             {filteredProperties.length > 0 ? (
-                filteredProperties.map((property, index) => (
-                    <PropertyCard
-                        key={index}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        <PropertyHeader>
-                        <PropertyName>{property.name}</PropertyName>
-                        </PropertyHeader>
-                        <PropertyLocation>
-                        <MapPin size={16} />
-                        {property.location}
-                        </PropertyLocation>
-                        <PropertyFeatures>
-                            {/* Display property capacity */}
-                            <FeatureTag>Capacity: {property.capacityRange.min}-{property.capacityRange.max} People</FeatureTag>
-                            {property.features.map((feature, fIndex) => (
-                                <FeatureTag key={fIndex}>{feature}</FeatureTag>
-                            ))}
-                        </PropertyFeatures>
-                        <ViewDetailsButton
-                        onClick={handleRedirectToLocations}
-                        >
-                        View Details
-                        </ViewDetailsButton>
-                    </PropertyCard>
-                ))
+              filteredProperties.map((property, index) => (
+                <PropertyCard
+                  key={index}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <PropertyHeader>
+                    <PropertyName>{property.name}</PropertyName>
+                  </PropertyHeader>
+                  <PropertyLocation>
+                    <MapPin size={16} />
+                    {property.location}
+                  </PropertyLocation>
+                  <PropertyFeatures>
+                    {/* Display property capacity */}
+                    <FeatureTag>
+                      Capacity: {property.capacityRange.min}-
+                      {property.capacityRange.max} People
+                    </FeatureTag>
+                    {property.features.map((feature, fIndex) => (
+                      <FeatureTag key={fIndex}>{feature}</FeatureTag>
+                    ))}
+                  </PropertyFeatures>
+                  <ViewDetailsButton onClick={handleRedirectToLocations}>
+                    View Details
+                  </ViewDetailsButton>
+                </PropertyCard>
+              ))
             ) : (
-                <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#718096', fontSize: '1.1rem' }}>
-                    No suitable venues found for {selectedEvent.title} based on capacity and type.
-                </p>
+              <p
+                style={{
+                  gridColumn: "1 / -1",
+                  textAlign: "center",
+                  color: "#718096",
+                  fontSize: "1.1rem",
+                }}
+              >
+                No suitable venues found for {selectedEvent.title} based on
+                capacity and type.
+              </p>
             )}
           </PropertiesGrid>
         </PropertiesSection>

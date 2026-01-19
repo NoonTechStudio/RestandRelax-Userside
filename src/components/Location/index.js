@@ -5,4 +5,11 @@ import ImageGallery from "./ImageGallery";
 import LocationMap from "./LocationMap";
 import ReviewSection from "./ReviewSection";
 
-export {BookingModal, Calenderdates, GuestSelector, ImageGallery, LocationMap, ReviewSection};
+export {
+  BookingModal,
+  Calenderdates,
+  GuestSelector,
+  ImageGallery,
+  LocationMap,
+  ReviewSection,
+};

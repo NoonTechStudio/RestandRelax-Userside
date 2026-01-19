@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Star, Award } from 'lucide-react';
-import { formatReviewDate } from '../../utils/locations/locationUitls';
+import { useState } from "react";
+import { Star, Award } from "lucide-react";
+import { formatReviewDate } from "../../utils/locations/locationUitls";
 
 // Guest Favorite Component
 const GuestFavorite = ({ rating }) => {
@@ -13,24 +13,35 @@ const GuestFavorite = ({ rating }) => {
             <Star
               key={star}
               size={16}
-              className={star <= Math.round(rating) ? "text-black fill-current" : "text-gray-300"}
+              className={
+                star <= Math.round(rating)
+                  ? "text-black fill-current"
+                  : "text-gray-300"
+              }
             />
           ))}
         </div>
       </div>
       <div className="flex items-center justify-center gap-2 mb-2">
         <Award className="text-black" size={50} />
-        <h3 className="text-4xl font-semibold text-gray-900">Guest favourite</h3>
+        <h3 className="text-4xl font-semibold text-gray-900">
+          Guest favourite
+        </h3>
       </div>
       <p className="text-gray-600 text-sm max-w-md leading-relaxed">
-        This home is a guest favourite based on<br />
+        This home is a guest favourite based on
+        <br />
         ratings, reviews and reliability
       </p>
     </div>
   );
 };
 
-const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) => {
+const ReviewsSection = ({
+  reviews,
+  expandedReviews,
+  onToggleReviewExpansion,
+}) => {
   // 🔥 Add local state to toggle all reviews
   const [showAll, setShowAll] = useState(false);
 
@@ -44,7 +55,11 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
           <Star
             key={star}
             size={16}
-            className={star <= numericRating ? "text-black fill-current" : "text-gray-300"}
+            className={
+              star <= numericRating
+                ? "text-black fill-current"
+                : "text-gray-300"
+            }
           />
         ))}
       </div>
@@ -54,7 +69,9 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
   if (!reviews?.reviews?.length) return null;
 
   // 🔥 Determine how many reviews to show
-  const visibleReviews = showAll ? reviews.reviews : reviews.reviews.slice(0, 4);
+  const visibleReviews = showAll
+    ? reviews.reviews
+    : reviews.reviews.slice(0, 4);
 
   return (
     <div className="mt-16 border-t border-gray-200 pt-12">
@@ -71,7 +88,7 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {visibleReviews.map((review, index) => {
             const isExpanded = expandedReviews[review._id];
-            const reviewText = review.reviewText || '';
+            const reviewText = review.reviewText || "";
             const shouldTruncate = reviewText.length > 150 && !isExpanded;
             const displayText = shouldTruncate
               ? `${reviewText.substring(0, 150)}...`
@@ -87,12 +104,14 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="font-semibold text-gray-600 text-sm">
-                          {(review.guestName || 'Guest').charAt(0).toUpperCase()}
+                          {(review.guestName || "Guest")
+                            .charAt(0)
+                            .toUpperCase()}
                         </span>
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-900 text-base capitalize">
-                          {review.guestName || 'Guest'}
+                          {review.guestName || "Guest"}
                         </h4>
                         {review.yearsOnPlatform && (
                           <p className="text-gray-600 text-sm">
@@ -121,7 +140,7 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
                       onClick={() => onToggleReviewExpansion(review._id)}
                       className="text-gray-600 font-medium hover:text-gray-800 transition-colors mt-2 text-sm"
                     >
-                      {isExpanded ? 'Show less' : 'Show more'}
+                      {isExpanded ? "Show less" : "Show more"}
                     </button>
                   )}
                 </div>
@@ -129,7 +148,9 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
                 <div className="space-y-2 text-sm text-gray-600">
                   {review.guestLocation && (
                     <div className="flex items-center gap-1">
-                      <span className="font-medium">{review.guestLocation}</span>
+                      <span className="font-medium">
+                        {review.guestLocation}
+                      </span>
                     </div>
                   )}
                   {review.stayDetails && (
@@ -157,7 +178,7 @@ const ReviewsSection = ({ reviews, expandedReviews, onToggleReviewExpansion }) =
               className="px-8 py-3 border border-gray-400 rounded-lg font-medium hover:bg-gray-50 transition-colors text-gray-900 text-base"
             >
               {showAll
-                ? 'Show less reviews'
+                ? "Show less reviews"
                 : `Show all ${reviews.reviews.length} reviews`}
             </button>
           </div>

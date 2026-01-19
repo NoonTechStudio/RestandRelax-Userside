@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination } from 'swiper/modules';
-import axios from 'axios';
-import 'swiper/css';
-import 'swiper/css/pagination';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination } from "swiper/modules";
+import axios from "axios";
+import "swiper/css";
+import "swiper/css/pagination";
 
 const Hero = () => {
   const [heroImages, setHeroImages] = useState([]);
@@ -17,21 +17,21 @@ const Hero = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/homepage-hero/active`);
-      
+
       if (response.data.data && response.data.data.images) {
         // Map the database images to the format needed for the slider
-        const images = response.data.data.images.map(img => ({
+        const images = response.data.data.images.map((img) => ({
           src: `${img.url}`,
           alt: `Hero image ${img.order + 1}`,
-          originalName: img.originalName
+          originalName: img.originalName,
         }));
         setHeroImages(images);
       } else {
         setHeroImages([]);
       }
     } catch (err) {
-      console.error('Error fetching hero images:', err);
-      setError('Failed to load hero images');
+      console.error("Error fetching hero images:", err);
+      setError("Failed to load hero images");
       // Fallback to empty array
       setHeroImages([]);
     } finally {
@@ -73,11 +73,23 @@ const Hero = () => {
         </div>
         <div className="w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] max-w-6xl rounded-xl sm:rounded-2xl shadow-4xl overflow-hidden mt-4 h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] bg-gray-100 flex items-center justify-center">
           <div className="text-center text-gray-500">
-            <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-16 h-16 mx-auto mb-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             <p>No hero images available</p>
-            <p className="text-sm mt-2">Please upload images in the admin panel</p>
+            <p className="text-sm mt-2">
+              Please upload images in the admin panel
+            </p>
           </div>
         </div>
       </section>
@@ -93,7 +105,7 @@ const Hero = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.3 }}
       >
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-serif text-black tracking-tight leading-snug"> 
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-serif text-black tracking-tight leading-snug">
           Discover Peace
         </h1>
       </motion.div>
@@ -112,8 +124,8 @@ const Hero = () => {
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{
             clickable: true,
-            bulletActiveClass: 'swiper-pagination-bullet-active bg-white',
-            bulletClass: 'swiper-pagination-bullet bg-gray-400'
+            bulletActiveClass: "swiper-pagination-bullet-active bg-white",
+            bulletClass: "swiper-pagination-bullet bg-gray-400",
           }}
           className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px]"
         >
@@ -127,7 +139,7 @@ const Hero = () => {
                   onError={(e) => {
                     // Fallback if image fails to load
                     console.error(`Failed to load image: ${image.src}`);
-                    e.target.src = '/api/placeholder/800/600';
+                    e.target.src = "/api/placeholder/800/600";
                   }}
                   loading="lazy"
                 />

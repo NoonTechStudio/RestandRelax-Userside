@@ -1,10 +1,10 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { Calendar, Users, MapPin, Sparkles } from 'lucide-react';
+import React from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import { Calendar, Users, MapPin, Sparkles } from "lucide-react";
 
 // Use a placeholder image path until the actual image is added to your project
-import aboutImage from '../assets/Images/AboutImg.jpg'; 
+import aboutImage from "../assets/Images/AboutImg.jpg";
 
 // --- Styled Components ---
 
@@ -49,7 +49,7 @@ const TextContainer = styled.div`
 `;
 
 const Heading = styled.h2`
-  font-family: 'Crimson Text', serif;
+  font-family: "Crimson Text", serif;
   font-size: 2.5rem; /* Smaller size for mobile */
   margin-bottom: 1.5rem; /* Adjusted margin for mobile */
   background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
@@ -67,9 +67,9 @@ const Heading = styled.h2`
 `;
 
 const BodyText = styled.p`
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 1rem; /* Smaller font for mobile readability */
-  color: #5D688A;
+  color: #5d688a;
   margin: 1rem 0; /* Reduced vertical margin */
   line-height: 1.7;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -146,8 +146,10 @@ const FeatureCard = styled(motion.div)`
   border-radius: 0.75rem; /* Slightly smaller radius */
   text-align: left;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  border-top: 4px solid #008DDA; 
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-top: 4px solid #008dda;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   &:hover {
     transform: translateY(-5px);
@@ -161,7 +163,7 @@ const FeatureCard = styled(motion.div)`
 `;
 
 const FeatureIconWrapper = styled.div`
-  color: #008DDA;
+  color: #008dda;
   margin-bottom: 0.75rem; /* Adjusted margin */
 `;
 
@@ -191,105 +193,131 @@ const FeatureDescription = styled.p`
 // --- Component ---
 
 const AboutSection = () => {
-    // Animation variants for Framer Motion
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    };
+  // Animation variants for Framer Motion
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: {
-                type: 'spring',
-                stiffness: 100
-            }
-        }
-    };
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+      },
+    },
+  };
 
-    return (
-        <SectionWrapper>
-            <ContentContainer>
-                {/* Text Section */}
-                <Heading>About Rest And Relax</Heading>
+  return (
+    <SectionWrapper>
+      <ContentContainer>
+        {/* Text Section */}
+        <Heading>About Rest And Relax</Heading>
 
-                <TextContainer>
-                    <TextGrid>
-                        <BodyText className='text-justify'>
-                            Welcome to <span className='font-bold'> Rest and Relax </span>, your premier destination for unforgettable experiences in the heart of Gujarat! Nestled in the vibrant city of Vadodara, we are dedicated to creating memorable moments for people from all walks of life across India.
-                        </BodyText>
-                        <BodyText className='text-justify'>
-                            Vadodara, a city steeped in culture and history, serves as the perfect backdrop for your special occasions. With its picturesque landscapes and rich heritage, our location offers an ideal escape from the hustle and bustle of everyday life.
-                        </BodyText>
-                    </TextGrid>
-                    <BodyText className='text-justify'>
-                        At Rest and Relax, we specialize in a diverse range of services designed to cater to your every need. Whether you're planning a delightful one-day picnic with family, an elegant wedding destination, or a fun-filled corporate event, we've got you covered.
-                    </BodyText>
-                </TextContainer>
-            </ContentContainer>
+        <TextContainer>
+          <TextGrid>
+            <BodyText className="text-justify">
+              Welcome to <span className="font-bold"> Rest and Relax </span>,
+              your premier destination for unforgettable experiences in the
+              heart of Gujarat! Nestled in the vibrant city of Vadodara, we are
+              dedicated to creating memorable moments for people from all walks
+              of life across India.
+            </BodyText>
+            <BodyText className="text-justify">
+              Vadodara, a city steeped in culture and history, serves as the
+              perfect backdrop for your special occasions. With its picturesque
+              landscapes and rich heritage, our location offers an ideal escape
+              from the hustle and bustle of everyday life.
+            </BodyText>
+          </TextGrid>
+          <BodyText className="text-justify">
+            At Rest and Relax, we specialize in a diverse range of services
+            designed to cater to your every need. Whether you're planning a
+            delightful one-day picnic with family, an elegant wedding
+            destination, or a fun-filled corporate event, we've got you covered.
+          </BodyText>
+        </TextContainer>
+      </ContentContainer>
 
-            {/* Full-width Image Section - Moved outside ContentContainer for full width */}
-            <ImageContainer
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-            >
-                <AboutImage src={aboutImage} alt="Scenic Valley" />
-            </ImageContainer>
+      {/* Full-width Image Section - Moved outside ContentContainer for full width */}
+      <ImageContainer
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <AboutImage src={aboutImage} alt="Scenic Valley" />
+      </ImageContainer>
 
-            <ContentContainer>
-                {/* Features/Value Proposition Grid */}
-                <FeaturesWrapper>
-                    <FeaturesGrid
-                        as={motion.div}
-                        variants={containerVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.3 }}
-                    >
-                        <FeatureCard variants={itemVariants}>
-                            <FeatureIconWrapper><Calendar size={32} /></FeatureIconWrapper>
-                            <FeatureTitle>Diverse Event Services</FeatureTitle>
-                            <FeatureDescription>
-                                From intimate family picnics to grand weddings and corporate gatherings, we offer comprehensive event planning tailored to your vision and budget.
-                            </FeatureDescription>
-                        </FeatureCard>
-                        
-                        <FeatureCard variants={itemVariants}>
-                            <FeatureIconWrapper><MapPin size={32} /></FeatureIconWrapper>
-                            <FeatureTitle>Prime Vadodara Location</FeatureTitle>
-                            <FeatureDescription>
-                                Enjoy the perfect blend of accessibility and natural beauty in Gujarat's cultural capital, with scenic landscapes and rich heritage at your doorstep.
-                            </FeatureDescription>
-                        </FeatureCard>
-                        
-                        <FeatureCard variants={itemVariants}>
-                            <FeatureIconWrapper><Users size={32} /></FeatureIconWrapper>
-                            <FeatureTitle>For Every Occasion</FeatureTitle>
-                            <FeatureDescription>
-                                Whether it's a day out with loved ones, a milestone celebration, or a team-building retreat, we create experiences that bring people together.
-                            </FeatureDescription>
-                        </FeatureCard>
-                        
-                        <FeatureCard variants={itemVariants}>
-                            <FeatureIconWrapper><Sparkles size={32} /></FeatureIconWrapper>
-                            <FeatureTitle>Memorable Experiences</FeatureTitle>
-                            <FeatureDescription>
-                                We transform ordinary gatherings into extraordinary memories with personalized service, attention to detail, and a passion for excellence.
-                            </FeatureDescription>
-                        </FeatureCard>
-                    </FeaturesGrid>
-                </FeaturesWrapper>
-            </ContentContainer>
-        </SectionWrapper>
-    );
+      <ContentContainer>
+        {/* Features/Value Proposition Grid */}
+        <FeaturesWrapper>
+          <FeaturesGrid
+            as={motion.div}
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <FeatureCard variants={itemVariants}>
+              <FeatureIconWrapper>
+                <Calendar size={32} />
+              </FeatureIconWrapper>
+              <FeatureTitle>Diverse Event Services</FeatureTitle>
+              <FeatureDescription>
+                From intimate family picnics to grand weddings and corporate
+                gatherings, we offer comprehensive event planning tailored to
+                your vision and budget.
+              </FeatureDescription>
+            </FeatureCard>
+
+            <FeatureCard variants={itemVariants}>
+              <FeatureIconWrapper>
+                <MapPin size={32} />
+              </FeatureIconWrapper>
+              <FeatureTitle>Prime Vadodara Location</FeatureTitle>
+              <FeatureDescription>
+                Enjoy the perfect blend of accessibility and natural beauty in
+                Gujarat's cultural capital, with scenic landscapes and rich
+                heritage at your doorstep.
+              </FeatureDescription>
+            </FeatureCard>
+
+            <FeatureCard variants={itemVariants}>
+              <FeatureIconWrapper>
+                <Users size={32} />
+              </FeatureIconWrapper>
+              <FeatureTitle>For Every Occasion</FeatureTitle>
+              <FeatureDescription>
+                Whether it's a day out with loved ones, a milestone celebration,
+                or a team-building retreat, we create experiences that bring
+                people together.
+              </FeatureDescription>
+            </FeatureCard>
+
+            <FeatureCard variants={itemVariants}>
+              <FeatureIconWrapper>
+                <Sparkles size={32} />
+              </FeatureIconWrapper>
+              <FeatureTitle>Memorable Experiences</FeatureTitle>
+              <FeatureDescription>
+                We transform ordinary gatherings into extraordinary memories
+                with personalized service, attention to detail, and a passion
+                for excellence.
+              </FeatureDescription>
+            </FeatureCard>
+          </FeaturesGrid>
+        </FeaturesWrapper>
+      </ContentContainer>
+    </SectionWrapper>
+  );
 };
 
 export default AboutSection;
