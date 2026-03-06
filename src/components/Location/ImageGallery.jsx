@@ -1,64 +1,74 @@
-import { Grid3x3 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Grid3x3 } from 'lucide-react';
+import React, { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// Get API base URL from environment
+const API_BASE_URL = import.meta.env.VITE_API_CONNECTION_HOST;
+
+// Helper to build absolute image URL
+const getImageUrl = (image) => {
+  if (!image) return null;
+
+  // Extract URL string
+  let url = typeof image === 'string' ? image : image.url;
+  if (!url) return null;
+
+  // If already absolute, use it
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  // Build absolute URL from base
+  let base = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+
+  // Remove '/api' from base if present (images usually served from root)
+  if (base.includes('/api')) {
+    base = base.split('/api')[0];
+  }
+
+  // Ensure path starts with a slash
+  const path = url.startsWith('/') ? url : `/${url}`;
+  const fullUrl = `${base}${path}`;
+
+  // Log for debugging (remove in production)
+  console.log('Image URL constructed:', fullUrl);
+  return fullUrl;
+};
 
 const ImageGallery = ({ locationId, images }) => {
   const navigate = useNavigate();
   const { mainImage, otherImages, allImages } = images;
-  const remainingImagesCount = Math.max(0, allImages.length - 5);
 
-  // SIMPLE URL EXTRACTOR - Just get the URL from the object
-  const getImageUrl = (image) => {
-    if (!image) return null;
+  const remainingImagesCount = useMemo(
+    () => Math.max(0, allImages.length - 5),
+    [allImages.length]
+  );
 
-    // If it's already a string URL, use it directly
-    if (typeof image === "string") {
-      return image;
-    }
+  const handleImageClick = useCallback(
+    (imageIndex) => {
+      navigate(`/locations-details/${locationId}/photos`, {
+        state: { images: allImages, currentIndex: imageIndex },
+      });
+    },
+    [navigate, locationId, allImages]
+  );
 
-    // If it's an object with url property, use that
-    if (typeof image === "object" && image.url) {
-      return image.url;
-    }
+  const handleShowAllPhotos = useCallback(() => {
+    navigate(`/locations-details/${locationId}/photos`, {
+      state: { images: allImages, currentIndex: 0 },
+    });
+  }, [navigate, locationId, allImages]);
 
-    return null;
-  };
-
-  // Handle image load error
-  const handleImageError = (e, imageType, imageData) => {
-    console.error(`Failed to load ${imageType} image:`, imageData);
-    console.error("Attempted URL:", e.target.src);
+  // Enhanced error handler
+  const handleImageError = useCallback((e) => {
+    console.error('Failed to load image:', e.target.src);
     e.target.src =
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
-  };
-
-  const handleImageClick = (imageIndex) => {
-    navigate(`/locations-details/${locationId}/photos`, {
-      state: {
-        images: allImages,
-        currentIndex: imageIndex,
-      },
-    });
-  };
-
-  const handleShowAllPhotos = () => {
-    navigate(`/locations-details/${locationId}/photos`, {
-      state: {
-        images: allImages,
-        currentIndex: 0,
-      },
-    });
-  };
-
-  // Debug logs to verify what we're receiving
-  console.log("ImageGallery received:", {
-    mainImage,
-    otherImages,
-    allImagesCount: allImages?.length,
-  });
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+  }, []);
 
   return (
-    <div className="relative mb-8">
-      <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[500px] rounded-xl overflow-hidden">
+    <div className="relative mb-4 md:mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 grid-rows-2 gap-1 sm:gap-2 h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] rounded-xl overflow-hidden">
         {/* Main image */}
         <div className="col-span-2 row-span-2 bg-gray-200 animate-fadeIn">
           {mainImage ? (
@@ -68,12 +78,12 @@ const ImageGallery = ({ locationId, images }) => {
               className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all duration-200"
               onClick={() => {
                 const mainImageIndex = allImages.findIndex(
-                  (img) => img === mainImage,
+                  (img) => img === mainImage
                 );
                 handleImageClick(mainImageIndex >= 0 ? mainImageIndex : 0);
               }}
-              onError={(e) => handleImageError(e, "main", mainImage)}
-              onLoad={() => console.log("✅ Main image loaded")}
+              onError={handleImageError}
+              loading="eager"
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -94,7 +104,7 @@ const ImageGallery = ({ locationId, images }) => {
           return (
             <div
               key={index}
-              className="col-span-1 row-span-1 bg-gray-200 animate-fadeIn"
+              className="hidden sm:block col-span-1 row-span-1 bg-gray-200 animate-fadeIn"
               style={{ animationDelay: `${(index + 1) * 100}ms` }}
             >
               {imageUrl ? (
@@ -104,14 +114,14 @@ const ImageGallery = ({ locationId, images }) => {
                   className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all duration-200"
                   onClick={() => {
                     const imageIndex = allImages.findIndex(
-                      (img) => img === imageObj,
+                      (img) => img === imageObj
                     );
-                    handleImageClick(imageIndex >= 0 ? imageIndex : index + 1);
+                    handleImageClick(
+                      imageIndex >= 0 ? imageIndex : index + 1
+                    );
                   }}
-                  onError={(e) =>
-                    handleImageError(e, `other-${index}`, imageObj)
-                  }
-                  onLoad={() => console.log(`✅ Other image ${index} loaded`)}
+                  onError={handleImageError}
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -130,8 +140,8 @@ const ImageGallery = ({ locationId, images }) => {
       {remainingImagesCount > 0 && (
         <button
           onClick={handleShowAllPhotos}
-          className="absolute bottom-4 right-4 bg-white px-4 py-3 rounded-lg flex items-center gap-2 font-medium text-sm hover:bg-gray-50 shadow-lg border border-gray-200 z-10 animate-fadeIn"
-          style={{ animationDelay: "500ms" }}
+          className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg flex items-center gap-2 font-medium text-xs sm:text-sm hover:bg-gray-50 shadow-lg border border-gray-200 z-10 animate-fadeIn"
+          style={{ animationDelay: '500ms' }}
         >
           <Grid3x3 size={16} />
           Show all {allImages.length} photos
@@ -141,4 +151,4 @@ const ImageGallery = ({ locationId, images }) => {
   );
 };
 
-export default ImageGallery;
+export default React.memo(ImageGallery);

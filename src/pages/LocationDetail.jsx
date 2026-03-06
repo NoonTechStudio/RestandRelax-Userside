@@ -1,53 +1,37 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { Toaster, toast } from 'react-hot-toast';
 import {
-  Share2,
-  Heart,
-  Star,
-  MapPin,
-  Key,
-  Calendar,
-  Tag,
-  Flag,
-  Users,
-  Bed,
-  Bath,
-  Clock,
-  CheckCircle,
-  Gift,
-  X,
-} from "lucide-react";
+  Share2, Heart, Star, MapPin, Calendar, Flag,
+  Users, Bed, Bath, Clock, CheckCircle, Gift, X, Check, FileText
+} from 'lucide-react';
 import {
-  BookingModal,
-  ImageGallery,
-  GuestSelector,
-  ReviewSection,
-  LocationMap,
-  Calenderdates,
-} from "../components/Location";
+  BookingModal, ImageGallery, GuestSelector, ReviewSection,
+  LocationMap, Calenderdates, PoolPartyModal
+} from '../components/Location';
 
 // Components
-import LoadingSkeleton from "../components/Location/LoadingSkeletion";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import LoadingSkeleton from '../components/Location/LoadingSkeletion';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 // Utils
 import {
   generateMonths,
   sanitizeHTML,
-  getOrganizedImages,
   processAmenities,
-  formatDate,
-} from "../utils/locations/locationUitls";
+  formatDate
+} from '../utils/locations/locationUitls';
 
 // Define the primary color for consistency
-const PRIMARY_COLOR = "#008DDA";
-const PRIMARY_COLOR_CLASS = "text-[#008DDA]";
+const PRIMARY_COLOR = '#008DDA';
+const PRIMARY_COLOR_CLASS = 'text-[#008DDA]';
 
 function LocationDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const routeLocation = useLocation();
   const [location, setLocation] = useState(null);
   const [reviews, setReviews] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,84 +46,120 @@ function LocationDetail() {
   const [selectedDates, setSelectedDates] = useState([]);
   const [adults, setAdults] = useState(1);
   const [kids, setKids] = useState(0);
-  const [showGuestSelector, setShowGuestSelector] = useState(false);
+  // Separate states for desktop and mobile guest selectors
+  const [showDesktopGuestSelector, setShowDesktopGuestSelector] = useState(false);
+  const [showMobileGuestSelector, setShowMobileGuestSelector] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState({});
+  const [showPoolPartyModal, setShowPoolPartyModal] = useState(false);
   const [bookingForm, setBookingForm] = useState({
-    name: "",
-    phone: "",
-    address: "",
+    name: '',
+    phone: '',
+    address: '',
     food: false,
+    foodPackage: ''
   });
 
   // Terms and Conditions states
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  // NEW: Pool Party Terms Modal state
+  const [showPoolPartyTermsModal, setShowPoolPartyTermsModal] = useState(false);
 
-  const guestSelectorRef = useRef(null);
-  const months = generateMonths(6);
+  // New state for same-day checkout option
+  const [sameDayCheckout, setSameDayCheckout] = useState(false);
 
-  // Close guest selector when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        guestSelectorRef.current &&
-        !guestSelectorRef.current.contains(event.target)
-      ) {
-        setShowGuestSelector(false);
+  const calendarRef = useRef(null);
+
+  // Memoized values (all hooks before early returns)
+  const months = useMemo(() => generateMonths(6), []);
+
+  const amenities = useMemo(() => processAmenities(location?.amenities), [location]);
+  const averageRating = useMemo(() => reviews?.summary?.averageRating || 0, [reviews]);
+  const totalReviews = useMemo(() => reviews?.summary?.totalReviews || 0, [reviews]);
+  const recommendedPercentage = useMemo(() => reviews?.summary?.recommendedPercentage || 0, [reviews]);
+
+  const propertyDetails = useMemo(() => [
+    { value: location?.capacityOfPersons, label: 'Guests', icon: Users, color: 'bg-blue-100 text-blue-800' },
+    { value: location?.propertyDetails?.bedrooms, label: 'Bedrooms', icon: Bed, color: 'bg-green-100 text-green-800' },
+    { value: location?.propertyDetails?.bathrooms || 1, label: 'Bathrooms', icon: Bath, color: 'bg-yellow-100 text-yellow-800' },
+  ].filter(detail => detail.value), [location]);
+
+  const showSameDayOption = useMemo(() => location?.propertyDetails?.nightStay === true, [location]);
+
+  const totalPrice = useMemo(() => {
+    if (!checkInDate || !location?.pricing) return 0;
+
+    const pricing = location.pricing;
+    const capacity = location.capacityOfPersons || 0;
+    const totalGuests = adults + kids;
+    const isNightStayAvailable = location?.propertyDetails?.nightStay === true && !sameDayCheckout;
+
+    let nights = 0;
+    if (isNightStayAvailable && checkOutDate) {
+      nights = checkOutDate > checkInDate
+        ? Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))
+        : 1;
+    }
+
+    let days = 1;
+    if (checkOutDate) {
+      const diffTime = Math.abs(checkOutDate - checkInDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      days = Math.max(1, diffDays);
+    }
+
+    const perNightRate = pricing.pricePerPersonNight || 0;
+    const nightPrice = perNightRate > 0 && nights > 0
+      ? perNightRate * totalGuests * nights
+      : 0;
+
+    const dayAdultRate = pricing.pricePerAdultDay || 0;
+    const dayKidRate = pricing.pricePerKidDay || 0;
+
+    let dayPrice = 0;
+    if (dayAdultRate || dayKidRate) {
+      dayPrice = (dayAdultRate * adults * days) + (dayKidRate * kids * days);
+    }
+
+    let extraCharge = 0;
+    if (capacity && totalGuests > capacity) {
+      const extraGuests = totalGuests - capacity;
+      const extraRate = pricing.extraPersonCharge || 0;
+      const extraMultiplier = isNightStayAvailable ? (nights || 1) : days;
+      extraCharge = extraGuests * extraRate * (extraMultiplier || 1);
+    }
+
+    let foodPrice = 0;
+    if (bookingForm.food && bookingForm.foodPackage && pricing) {
+      const pkgKey = bookingForm.foodPackage === 'package1' ? 'foodPackage1' : 'foodPackage2';
+      const pkg = pricing[pkgKey];
+      if (pkg) {
+        foodPrice = pkg.price * totalGuests * days;
       }
-    };
+    }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return nightPrice + dayPrice + extraCharge + foodPrice;
+  }, [checkInDate, checkOutDate, location, adults, kids, sameDayCheckout, bookingForm.food, bookingForm.foodPackage]);
+
+  // Stable callbacks
+  const scrollToCalendar = useCallback(() => {
+    if (calendarRef.current) {
+      calendarRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, []);
 
-  // Fetch location data
-  useEffect(() => {
-    const fetchLocationData = async () => {
-      try {
-        setLoading(true);
-        setReviewsLoading(true);
-        setError(null);
-
-        const [locationRes, reviewsRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/locations/${id}`),
-          axios.get(`${API_BASE_URL}/reviews/location/${id}`),
-        ]);
-
-        setLocation(locationRes.data);
-        setReviews(reviewsRes.data);
-
-        setLoading(false);
-        setReviewsLoading(false);
-      } catch (err) {
-        console.error("Error fetching location data:", err);
-        setError("Failed to load location data. Please refresh the page.");
-        setLoading(false);
-        setReviewsLoading(false);
-      }
-    };
-
-    fetchLocationData();
-  }, [id]);
-
-  const handleDateClick = (day, monthIndex) => {
+  const handleDateClick = useCallback((day, monthIndex) => {
     if (!day || !months[monthIndex]) return;
 
     const month = months[monthIndex];
     const clickedDate = new Date(month.year, month.month, day);
 
-    // Check if nightStay is false from propertyDetails
-    if (location?.propertyDetails?.nightStay === false) {
-      // For day picnic (nightStay: false), automatically set checkout to next day
-      const nextDay = new Date(clickedDate);
-      nextDay.setDate(nextDay.getDate() + 1);
-
+    if (location?.propertyDetails?.nightStay === false || sameDayCheckout) {
       setCheckInDate(clickedDate);
-      setCheckOutDate(nextDay);
-      setSelectedDates([clickedDate, nextDay]);
+      setCheckOutDate(clickedDate);
+      setSelectedDates([clickedDate]);
     } else if (location?.propertyDetails?.nightStay) {
-      // Original night stay logic
       if (!checkInDate) {
         setCheckInDate(clickedDate);
         setSelectedDates([clickedDate]);
@@ -159,47 +179,53 @@ function LocationDetail() {
         setSelectedDates([clickedDate]);
       }
     } else {
-      // Default behavior if propertyDetails is not available
       setCheckInDate(clickedDate);
       setCheckOutDate(null);
       setSelectedDates([clickedDate]);
     }
-  };
+  }, [location, sameDayCheckout, checkInDate, checkOutDate, months]);
 
-  const handleGuestChange = (type, value) => {
-    if (type === "adults") {
-      setAdults(value);
-    } else {
-      setKids(value);
-    }
-  };
+  const handleGuestChange = useCallback((type, value) => {
+    if (type === 'adults') setAdults(value);
+    else setKids(value);
+  }, []);
 
-  const handleBookNow = () => {
+  const handleBookNow = useCallback(() => {
     if (!checkInDate) {
-      alert("Please select check-in date");
+      toast.error('Please select check-in date');
       return;
     }
-    // Only require checkout date if it's a night stay
-    if (location?.propertyDetails?.nightStay && !checkOutDate) {
-      alert("Please select check-out date");
+    if (location?.propertyDetails?.nightStay && !checkOutDate && !sameDayCheckout) {
+      toast.error('Please select check-out date');
       return;
     }
     setShowBookingModal(true);
-  };
+  }, [checkInDate, checkOutDate, sameDayCheckout, location]);
 
-  const handleBookingSubmit = async (e) => {
+  useEffect(() => {
+    if (location && routeLocation.state?.openPoolPartyModal) {
+      // Clear the state so it doesn't reopen on subsequent renders
+      navigate(routeLocation.pathname, { replace: true, state: {} });
+      // Open the pool party terms modal
+      setShowPoolPartyTermsModal(true);
+    }
+  }, [location, routeLocation.state, routeLocation.pathname, navigate]);
+  
+  const handleBookingSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     if (!/^\d{10}$/.test(bookingForm.phone)) {
-      alert("Please enter a valid 10-digit phone number");
+      toast.error('Please enter a valid 10-digit phone number');
       return;
     }
 
     try {
-      const nights =
-        checkInDate && checkOutDate && checkOutDate > checkInDate
+      let nights = 0;
+      if (location?.propertyDetails?.nightStay && !sameDayCheckout) {
+        nights = checkInDate && checkOutDate && checkOutDate > checkInDate
           ? Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24))
           : 1;
+      }
 
       const bookingData = {
         locationId: id,
@@ -207,45 +233,43 @@ function LocationDetail() {
         phone: bookingForm.phone.trim(),
         address: bookingForm.address.trim(),
         food: bookingForm.food,
+        foodPackage: bookingForm.foodPackage || null,
         checkInDate: checkInDate.toISOString(),
-        checkOutDate: location?.propertyDetails?.nightStay
-          ? checkOutDate.toISOString()
-          : null, // Only include if it's a night stay
+        checkOutDate: checkOutDate?.toISOString(),
         nights,
         adults,
         kids,
         totalGuests: adults + kids,
+        totalPrice,
+        sameDayCheckout: sameDayCheckout || location?.propertyDetails?.nightStay === false
       };
 
-      console.log("Booking data:", bookingData);
-      // NOTE: Placeholder for actual API call
-      // const response = await axios.post(`${API_BASE_URL}/bookings`, bookingData);
+      console.log('Booking data:', bookingData);
+      // Placeholder for actual API call
+      // await axios.post(`${API_BASE_URL}/bookings`, bookingData);
 
-      alert("Booking submitted successfully! We will contact you shortly.");
+      toast.success('Booking submitted successfully! We will contact you shortly.');
       setShowBookingModal(false);
-      setBookingForm({ name: "", phone: "", address: "", food: false });
+      setBookingForm({ name: '', phone: '', address: '', food: false, foodPackage: '' });
     } catch (error) {
-      console.error("Booking error:", error);
-      alert("Error submitting booking. Please try again.");
+      console.error('Booking error:', error);
+      toast.error('Error submitting booking. Please try again.');
     }
-  };
+  }, [bookingForm, checkInDate, checkOutDate, adults, kids, totalPrice, sameDayCheckout, location, id]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
-    setBookingForm((prev) => ({
+    setBookingForm(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
-  };
+  }, []);
 
-  const toggleReviewExpansion = (reviewId) => {
-    setExpandedReviews((prev) => ({
-      ...prev,
-      [reviewId]: !prev[reviewId],
-    }));
-  };
+  const toggleReviewExpansion = useCallback((reviewId) => {
+    setExpandedReviews(prev => ({ ...prev, [reviewId]: !prev[reviewId] }));
+  }, []);
 
-  const renderStars = (rating) => {
+  const renderStars = useCallback((rating) => {
     const numericRating = Number(rating) || 0;
     return (
       <div className="flex items-center gap-1">
@@ -253,203 +277,391 @@ function LocationDetail() {
           <Star
             key={star}
             size={16}
-            className={
-              star <= numericRating
-                ? `${PRIMARY_COLOR_CLASS} fill-current`
-                : "text-gray-300"
-            }
+            className={star <= numericRating ? `${PRIMARY_COLOR_CLASS} fill-current` : "text-gray-300"}
           />
         ))}
       </div>
     );
-  };
+  }, []);
 
-  // Terms and Conditions Modal Component
-  const TermsAndConditionsModal = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Blur Background */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={() => setShowTermsModal(false)}
-      />
+  const handleSameDayCheckoutToggle = useCallback(() => {
+    if (sameDayCheckout) {
+      setSameDayCheckout(false);
+      setCheckOutDate(null);
+      setSelectedDates(checkInDate ? [checkInDate] : []);
+    } else {
+      setSameDayCheckout(true);
+      if (checkInDate) {
+        setCheckOutDate(checkInDate);
+        setSelectedDates([checkInDate]);
+      }
+    }
+  }, [sameDayCheckout, checkInDate]);
 
-      {/* Modal Content */}
-      <div className="relative bg-white/95 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Terms and Conditions
-          </h2>
-          <button
-            onClick={() => setShowTermsModal(false)}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X size={24} className="text-gray-600" />
-          </button>
+  const handleClearDates = useCallback(() => {
+    setCheckInDate(null);
+    setCheckOutDate(null);
+    setSelectedDates([]);
+    setSameDayCheckout(location?.propertyDetails?.nightStay === false);
+  }, [location]);
+
+  // Fetch location data
+  useEffect(() => {
+    const fetchLocationData = async () => {
+      try {
+        setLoading(true);
+        setReviewsLoading(true);
+        setError(null);
+
+        const [locationRes, reviewsRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/locations/${id}`),
+          axios.get(`${API_BASE_URL}/reviews/location/${id}`)
+        ]);
+
+        setLocation(locationRes.data);
+        setReviews(reviewsRes.data);
+
+        if (locationRes.data?.propertyDetails?.nightStay === false) {
+          setSameDayCheckout(true);
+        }
+
+        setLoading(false);
+        setReviewsLoading(false);
+      } catch (err) {
+        console.error('Error fetching location data:', err);
+        setError('Failed to load location data. Please refresh the page.');
+        setLoading(false);
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchLocationData();
+  }, [id, API_BASE_URL]);
+
+  // Update sameDayCheckout when checkInDate changes
+  useEffect(() => {
+    if (sameDayCheckout && checkInDate) {
+      setCheckOutDate(checkInDate);
+      setSelectedDates([checkInDate]);
+    }
+  }, [sameDayCheckout, checkInDate]);
+
+  // ===== Terms and Conditions Modal for Location (unchanged) =====
+  const TermsAndConditionsModal = useMemo(() => {
+    return function Modal() {
+      const [terms, setTerms] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+      useEffect(() => {
+        fetchTerms();
+      }, []);
+
+      const fetchTerms = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(
+            `${API_BASE_URL}/terms-and-conditions/active/location/${id}`
+          );
+          const data = await response.json();
+
+          if (data.success && data.data) {
+            setTerms(data.data);
+          } else {
+            setTerms({
+              title: "Standard Terms and Conditions",
+              terms: [
+                { pointNumber: 1, title: "Charges for Children", description: "Children aged between 5 and 8 years will be charged at half rate." },
+                { pointNumber: 2, title: "Charges for Adults", description: "Individuals above 8 years will be charged at the full rate." },
+                { pointNumber: 3, title: "Advance Payment", description: "Entry to the resort is permitted only after the advance payment is cleared." },
+                { pointNumber: 4, title: "Cancellation Policy", description: "No refunds will be issued for canceled bookings." },
+                { pointNumber: 5, title: "Personal Responsibility", description: "Participation in activities and use of the swimming pool is at the individual's own risk. The resort is not liable for any injuries or accidents." }
+              ]
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching terms:", err);
+          setError("Failed to load terms and conditions");
+          setTerms({
+            title: "Terms and Conditions",
+            terms: [{ pointNumber: 1, title: "Standard Terms", description: "Please contact the property for specific terms and conditions." }]
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowTermsModal(false)} />
+          <div className="relative bg-white/95 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-2xl font-bold text-gray-900 truncate">
+                  {loading ? "Loading..." : terms?.title || "Terms and Conditions"}
+                </h2>
+                {terms?.description && !loading && (
+                  <p className="text-sm text-gray-600 mt-1 truncate">{terms.description}</p>
+                )}
+              </div>
+              <button onClick={() => setShowTermsModal(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors shrink-0 ml-2">
+                <X size={24} className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Loading terms and conditions...</p>
+                </div>
+              ) : error ? (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <X className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{error}</h3>
+                  <p className="text-gray-600">Please try again or contact support.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Please read and accept the following terms and conditions:
+                  </div>
+                  <div className="space-y-4">
+                    {terms?.terms?.filter(term => term.isActive !== false).map((term) => (
+                      <div key={term.pointNumber} className="pb-4 border-b border-gray-100 last:border-b-0 last:pb-0">
+                        <p className="font-semibold text-gray-900 mb-2">
+                          {term.pointNumber}. {term.title}
+                        </p>
+                        <p className="text-sm text-gray-700 whitespace-pre-line">{term.description}</p>
+                      </div>
+                    ))}
+                    {(!terms?.terms || terms.terms.length === 0) && (
+                      <div className="text-center py-8">
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FileText className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Terms Available</h3>
+                        <p className="text-gray-600">No specific terms and conditions are set for this location.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Agreement Checkbox */}
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        className="w-4 h-4 text-[#008DDA] border-gray-300 rounded focus:ring-[#008DDA]"
+                      />
+                      <span className="text-sm font-medium text-gray-900">
+                        I agree to the Terms and Conditions
+                      </span>
+                    </label>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              <button onClick={() => setShowTermsModal(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (agreedToTerms) {
+                    setShowTermsModal(false);
+                  } else {
+                    toast.error('Please agree to the Terms and Conditions to continue.');
+                  }
+                }}
+                disabled={!agreedToTerms}
+                className="px-6 py-2 bg-[#008DDA] text-white font-medium rounded-lg hover:bg-[#0066a8] disabled:opacity-50"
+              >
+                Confirm Agreement
+              </button>
+            </div>
+          </div>
         </div>
+      );
+    };
+  }, [id, API_BASE_URL, agreedToTerms]);
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="text-sm text-gray-600 mb-4">
-            Please read and accept the following terms and conditions:
-          </div>
+  // ===== NEW: Pool Party Terms Modal =====
+  const PoolPartyTermsModal = () => {
+    const [terms, setTerms] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [agreed, setAgreed] = useState(false);
 
-          <div className="space-y-4 text-sm text-gray-700">
-            <p>
-              <strong>1. Charges for Children:</strong> Children aged between 5
-              and 8 years will be charged at half rate.
-            </p>
-            <p>
-              <strong>2. Charges for Adults:</strong> Individuals above 8 years
-              will be charged at the full rate.
-            </p>
-            <p>
-              <strong>3. Advance Payment:</strong> Entry to the resort is
-              permitted only after the advance payment is cleared.
-            </p>
-            <p>
-              <strong>4. Cancellation Policy:</strong> No refunds will be issued
-              for canceled bookings.
-            </p>
-            <p>
-              <strong>5. Personal Responsibility:</strong> Participation in
-              activities and use of the swimming pool is at the individual's own
-              risk. The resort is not liable for any injuries or accidents.
-            </p>
-            <p>
-              <strong>6. Prohibited Activities:</strong> Alcohol consumption and
-              illegal activities are strictly prohibited within the resort.
-            </p>
-            <p>
-              <strong>7. Swimming Pool Guidelines:</strong> Individuals with
-              skin problems or allergies should refrain from using the swimming
-              pool.
-            </p>
-            <p>
-              <strong>8. Meal Timings:</strong>
-              <br />
-              Breakfast: 9:00 AM to 10:00 AM
-              <br />
-              Lunch: 12:00 PM to 1:00 PM
-              <br />
-              Evening Snacks: 4:00 PM to 5:00 PM
-              <br />
-              Dinner: 8:00 PM to 10:00 PM
-            </p>
-            <p>
-              <strong>9. Group Activities:</strong> Horse riding and bullock
-              cart rides require a minimum of 25 participants. Otherwise, they
-              may be offered to other groups at no charge.
-            </p>
-            <p>
-              <strong>10. Swimming Pool Depth:</strong> The swimming pool has a
-              depth of 4 feet.
-            </p>
-            <p>
-              <strong>11. Government Guidelines:</strong> Compliance with all
-              relevant government guidelines is mandatory.
-            </p>
-            <p>
-              <strong>12. [Intentionally Left Blank]</strong>
-            </p>
-            <p>
-              <strong>13. Behavioral Conduct:</strong> Individuals causing
-              disturbances will be promptly removed from the resort.
-            </p>
-            <p>
-              <strong>14. Contact Information:</strong> Resort helpline numbers
-              are +91 8980688555 and +91 9099048961.
-            </p>
-            <p>
-              <strong>15. Adventure Activities:</strong> Available only to
-              individuals aged 18 and above.
-            </p>
-            <p>
-              <strong>16. Personal Belongings:</strong> Guests are responsible
-              for the security of their personal belongings.
-            </p>
-            <p>
-              <strong>17. Pre-Entry Requirements:</strong> The booking party
-              must undergo a full check prior to service; subsequent disputes
-              will not be addressed.
-            </p>
-            <p>
-              <strong>18. Identification:</strong> Wearing a wristband is
-              mandatory; those without will be asked to leave.
-            </p>
-            <p>
-              <strong>19. Identification for Children:</strong> Children under 5
-              must present ID, with guardians assuming responsibility.
-            </p>
-            <p>
-              <strong>20. Activity Participation:</strong> All activities are
-              available to all guests.
-            </p>
-            <p>
-              <strong>21. Accommodation Charges:</strong> Charges for AC, non-AC
-              rooms, or private villas are separate and must be settled
-              accordingly.
-            </p>
-            <p>
-              <strong>22. Check-In and Entry:</strong> Check-in is from 9:00 AM
-              to 9:00 PM. No entry after 10:00 PM.
-            </p>
-            <p>
-              <strong>23. Booking Information:</strong> A name and contact
-              number are required for all bookings.
-            </p>
-            <p>
-              <strong>24. Handling Issues:</strong> Guests should address any
-              concerns calmly with on-site staff. Aggressive behavior will not
-              be tolerated.
-            </p>
-            <p className="font-semibold">
-              Compliance with these terms is mandatory.
-            </p>
-          </div>
+    const poolPartyId = location?.poolPartyDetails?._id;
 
-          {/* Agreement Checkbox */}
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="w-4 h-4 text-[#008DDA] border-gray-300 rounded focus:ring-[#008DDA]"
-              />
-              <span className="text-sm font-medium text-gray-900">
-                I agree to the Terms and Conditions
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
-          <button
-            onClick={() => setShowTermsModal(false)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              if (agreedToTerms) {
-                setShowTermsModal(false);
-              } else {
-                alert("Please agree to the Terms and Conditions to continue.");
+    useEffect(() => {
+      const fetchTerms = async () => {
+        if (!poolPartyId) return;
+        try {
+          setLoading(true);
+          const response = await fetch(
+            `${API_BASE_URL}/terms-and-conditions/active/poolParty/${poolPartyId}`
+          );
+          const data = await response.json();
+          if (data.success && data.data) {
+            setTerms(data.data);
+          } else {
+            // Fallback terms if none are defined
+            setTerms({
+              title: "Pool Party Terms and Conditions",
+              terms: [
+                {
+                  pointNumber: 1,
+                  title: "Standard Terms",
+                  description: "Please follow the pool party guidelines provided by the resort."
+                }
+              ]
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching pool party terms:", err);
+          setError("Failed to load terms");
+          setTerms({
+            title: "Terms and Conditions",
+            terms: [
+              {
+                pointNumber: 1,
+                title: "Standard Terms",
+                description: "Please contact the property for specific terms."
               }
-            }}
-            disabled={!agreedToTerms}
-            className="px-6 py-2 bg-[#008DDA] text-white font-medium rounded-lg hover:bg-[#0066a8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Confirm Agreement
-          </button>
+            ]
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchTerms();
+    }, [poolPartyId]);
+
+    if (!showPoolPartyTermsModal) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+          onClick={() => setShowPoolPartyTermsModal(false)}
+        />
+        <div className="relative bg-white/95 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold text-gray-900 truncate">
+                {loading ? "Loading..." : terms?.title || "Pool Party Terms and Conditions"}
+              </h2>
+              {terms?.description && !loading && (
+                <p className="text-sm text-gray-600 mt-1 truncate">{terms.description}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setShowPoolPartyTermsModal(false)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors shrink-0 ml-2"
+            >
+              <X size={24} className="text-gray-600" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 overflow-y-auto max-h-[60vh]">
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading terms and conditions...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <X className="w-6 h-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{error}</h3>
+                <p className="text-gray-600">Please try again or contact support.</p>
+              </div>
+            ) : (
+              <>
+                <div className="text-sm text-gray-600 mb-4">
+                  Please read and accept the following terms and conditions for the pool party:
+                </div>
+                <div className="space-y-4">
+                  {terms?.terms
+                    ?.filter((term) => term.isActive !== false)
+                    .map((term) => (
+                      <div key={term.pointNumber} className="pb-4 border-b border-gray-100 last:border-b-0 last:pb-0">
+                        <p className="font-semibold text-gray-900 mb-2">
+                          {term.pointNumber}. {term.title}
+                        </p>
+                        <p className="text-sm text-gray-700 whitespace-pre-line">{term.description}</p>
+                      </div>
+                    ))}
+                  {(!terms?.terms || terms.terms.length === 0) && (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FileText className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Terms Available</h3>
+                      <p className="text-gray-600">No specific terms and conditions are set for this pool party.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Agreement Checkbox */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreed}
+                      onChange={(e) => setAgreed(e.target.checked)}
+                      className="w-4 h-4 text-[#008DDA] border-gray-300 rounded focus:ring-[#008DDA]"
+                    />
+                    <span className="text-sm font-medium text-gray-900">
+                      I agree to the Pool Party Terms and Conditions
+                    </span>
+                  </label>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+            <button
+              onClick={() => setShowPoolPartyTermsModal(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (agreed) {
+                  setShowPoolPartyTermsModal(false);
+                  setShowPoolPartyModal(true);
+                } else {
+                  toast.error("Please agree to the Terms and Conditions to continue.");
+                }
+              }}
+              disabled={!agreed}
+              className="px-6 py-2 bg-[#008DDA] text-white font-medium rounded-lg hover:bg-[#0066a8] disabled:opacity-50"
+            >
+              Confirm & Continue
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
+  // Early returns after all hooks
   if (loading) return <LoadingSkeleton />;
   if (error) {
     return (
@@ -469,49 +681,19 @@ function LocationDetail() {
   if (!location) {
     return (
       <div className="min-h-screen bg-gray-50 py-10 flex items-center justify-center font-inter">
-        <div className="text-center text-gray-500 p-8 bg-white rounded-xl shadow-lg">
-          Location not found
-        </div>
+        <div className="text-center text-gray-500 p-8 bg-white rounded-xl shadow-lg">Location not found</div>
       </div>
     );
   }
-
-  const images = getOrganizedImages(location);
-  const amenities = processAmenities(location.amenities);
-  const averageRating = reviews?.summary?.averageRating || 0;
-  const totalReviews = reviews?.summary?.totalReviews || 0;
-  const recommendedPercentage = reviews?.summary?.recommendedPercentage || 0;
-
-  // Property Details for badges
-  const propertyDetails = [
-    {
-      value: location.capacityOfPersons,
-      label: "Guests",
-      icon: Users,
-      color: "bg-blue-100 text-blue-800",
-    },
-    {
-      value: location.propertyDetails?.bedrooms,
-      label: "Bedrooms",
-      icon: Bed,
-      color: "bg-green-100 text-green-800",
-    },
-    {
-      value: location.propertyDetails?.bathrooms || 1,
-      label: "Bathrooms",
-      icon: Bath,
-      color: "bg-yellow-100 text-yellow-800",
-    },
-  ].filter((detail) => detail.value);
 
   return (
     <>
       <Navbar />
       <div className="min-h-screen bg-gray-50 pt-20 font-inter">
-        {/* Terms and Conditions Modal */}
+        <Toaster position="top-center" reverseOrder={false} />
         {showTermsModal && <TermsAndConditionsModal />}
-
-        {/* Fixed Header: Name and Actions (Visible on scroll) */}
+        {/* Render the new Pool Party Terms Modal */}
+        {showPoolPartyTermsModal && <PoolPartyTermsModal />}
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           {/* Main Title and Meta */}
@@ -528,15 +710,13 @@ function LocationDetail() {
               ) : (
                 <div className="flex items-center gap-1 font-semibold">
                   {renderStars(Math.round(averageRating))}
-                  <span className="ml-1 text-gray-900">
-                    {averageRating.toFixed(1)}
-                  </span>
+                  <span className="ml-1 text-gray-900">{averageRating.toFixed(1)}</span>
                   <span className="mx-1 text-gray-400">·</span>
                   <button
                     onClick={() => navigate(`/location/${id}/reviews`)}
                     className="underline hover:text-gray-700 transition-colors"
                   >
-                    {totalReviews} review{totalReviews !== 1 ? "s" : ""}
+                    {totalReviews} review{totalReviews !== 1 ? 's' : ''}
                   </button>
                 </div>
               )}
@@ -544,11 +724,9 @@ function LocationDetail() {
               <div className="flex items-center gap-1">
                 <MapPin size={16} className="text-gray-400" />
                 <span className="underline">
-                  {location.address?.city ?? "Location TBD"}
+                  {location.address?.city ?? 'Location TBD'}
                 </span>
               </div>
-
-              {/* Share/Save buttons in title bar */}
               <div className="ml-auto flex items-center gap-2">
                 <button className="flex items-center gap-1 px-3 py-2 rounded-full hover:bg-gray-200 transition-colors text-gray-700 text-sm font-medium">
                   <Share2 size={16} />
@@ -562,38 +740,29 @@ function LocationDetail() {
             </div>
           </div>
 
-          {/* Images Section */}
+          {/* Images Section - unchanged */}
           <ImageGallery
             locationId={location._id}
             images={{
-              mainImage: location.images[0], // Pass the object, not processed URL
-              otherImages: location.images?.slice(1, 5), // Pass objects array
-              allImages: location.images, // Pass original array
+              mainImage: location.images[0],
+              otherImages: location.images?.slice(1, 5),
+              allImages: location.images
             }}
           />
 
           <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12">
-            {/* LEFT SECTION - Details and Info */}
+            {/* LEFT SECTION */}
             <div className="lg:col-span-2 space-y-10">
               {/* 1. Property Summary & Badges */}
               <div className="pb-6 border-b border-gray-200">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                  {location.propertyDetails?.nightStay
-                    ? "Farmhouse Night Stay"
-                    : "Exclusive Day Picnic Spot"}{" "}
-                  hosted by Owner
+                  {location.propertyDetails?.nightStay ? 'Farmhouse Night Stay' : 'Exclusive Day Picnic Spot'} hosted by Owner
                 </h2>
-
                 <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
                   {propertyDetails.map((detail, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-2 px-3 py-1 rounded-full ${detail.color}`}
-                    >
-                      <detail.icon size={16} className="flex-shrink-0" />
-                      <span>
-                        {detail.value} {detail.label}
-                      </span>
+                    <div key={index} className={`flex items-center gap-2 px-3 py-1 rounded-full ${detail.color}`}>
+                      <detail.icon size={16} className="shrink-0" />
+                      <span>{detail.value} {detail.label}</span>
                     </div>
                   ))}
                 </div>
@@ -601,21 +770,13 @@ function LocationDetail() {
 
               {/* 2. Highlights */}
               <div className="pb-6 border-b border-gray-200 space-y-5">
-                <h3 className="font-semibold text-xl mb-4 text-gray-900">
-                  Key Highlights
-                </h3>
-
+                <h3 className="font-semibold text-xl mb-4 text-gray-900">Key Highlights</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {/* Highlight 1: Check-in */}
                   <div className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <CheckCircle
-                      size={24}
-                      className={`mt-1 flex-shrink-0 ${PRIMARY_COLOR_CLASS}`}
-                    />
+                    <CheckCircle size={24} className={`mt-1 shrink-0 ${PRIMARY_COLOR_CLASS}`} />
                     <div>
-                      <h4 className="font-semibold mb-1 text-gray-900">
-                        Smooth Check-in
-                      </h4>
+                      <h4 className="font-semibold mb-1 text-gray-900">Smooth Check-in</h4>
                       <p className="text-sm text-gray-600">
                         {totalReviews > 0
                           ? `${recommendedPercentage}% of guests gave the check-in process a 5-star rating.`
@@ -626,80 +787,193 @@ function LocationDetail() {
 
                   {/* Highlight 2: Timings */}
                   <div className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <Clock
-                      size={24}
-                      className={`mt-1 flex-shrink-0 ${PRIMARY_COLOR_CLASS}`}
-                    />
+                    <Clock size={24} className={`mt-1 shrink-0 ${PRIMARY_COLOR_CLASS}`} />
                     <div>
-                      <h4 className="font-semibold mb-1 text-gray-900">
-                        Timings
-                      </h4>
+                      <h4 className="font-semibold mb-1 text-gray-900">Timings</h4>
                       <p className="text-sm text-gray-600">
-                        Check-in 10:00 AM · Checkout next day 10:00 AM (For
-                        night stay)
+                        {location?.propertyDetails?.nightStay === false || sameDayCheckout
+                          ? "Check-in 10:00 AM · Checkout 10:00 PM (Same day)"
+                          : "Check-in 10:00 AM · Checkout next day 10:00 AM (For night stay)"}
                       </p>
                     </div>
                   </div>
 
-                  {/* Highlight 3: Address */}
+                  {/* Highlight 3: Address with Pool Party */}
                   <div className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm sm:col-span-2">
-                    <MapPin
-                      size={24}
-                      className={`mt-1 flex-shrink-0 ${PRIMARY_COLOR_CLASS}`}
-                    />
-                    <div>
-                      <h4 className="font-semibold mb-1 text-gray-900">
-                        Location Address
-                      </h4>
+                    <MapPin size={24} className={`mt-1 shrink-0 ${PRIMARY_COLOR_CLASS}`} />
+                    <div className="flex-1">
+                      <h4 className="font-semibold mb-1 text-gray-900">Location Address</h4>
                       <p className="text-sm text-gray-600">
-                        {location.address?.line1 ?? "Address unavailable"}
-                        {location.address?.line2 &&
-                          `, ${location.address.line2}`}
+                        {location.address?.line1 ?? 'Address unavailable'}
+                        {location.address?.line2 && `, ${location.address.line2}`}
                         {location.address?.city && `, ${location.address.city}`}
-                        {location.address?.state &&
-                          `, ${location.address.state}`}
-                        {location.address?.pincode &&
-                          ` - ${location.address.pincode}`}
+                        {location.address?.state && `, ${location.address.state}`}
+                        {location.address?.pincode && ` - ${location.address.pincode}`}
                       </p>
+
+                      {/* Pool Party Information */}
+                      {(location.poolPartyConfig?.isPrivatePoolCreatedFromHere || location.poolPartyConfig?.isSharedPoolCreatedFromHere) && (
+                        <div className="mt-4 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-200">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 bg-blue-100 rounded-lg">
+                                <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <div>
+                                <h5 className="font-bold text-gray-900 text-sm mb-1">Pool Party Booking Available</h5>
+                                <p className="flex items-center gap-1 text-xs text-gray-700">
+                                  <Check size={12} className="text-green-500" />
+                                  <span>Pool party only with food packages</span>
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => setShowPoolPartyTermsModal(true)}
+                              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] whitespace-nowrap text-sm flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Book Pool Party
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Mobile Booking Card - appears after highlights on mobile, hidden on desktop */}
+              <div className="block lg:hidden">
+                <div className="bg-white border-2 border-gray-100 rounded-2xl shadow-2xl p-5">
+                  <div className="flex items-center justify-center mb-4 pb-4 border-b border-gray-100">
+                    <span className="text-xl font-bold text-gray-900 mr-2">Check Availability</span>
+                    {totalReviews > 0 && (
+                      <div className="flex items-center text-sm font-semibold ml-auto">
+                        {renderStars(Math.round(averageRating))}
+                        <span className="ml-1 text-gray-800">{averageRating.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border border-gray-300 rounded-xl overflow-visible mb-4">
+                    <div className="grid grid-cols-2 border-b border-gray-300">
+                      <div className="border-r border-gray-300 p-3 hover:bg-gray-50 cursor-pointer" onClick={scrollToCalendar}>
+                        <div className="text-xs font-semibold text-gray-700 mb-1">CHECK-IN</div>
+                        <div className="font-medium text-gray-900 flex justify-between">
+                          <span>{checkInDate ? formatDate(checkInDate) : 'Select date'}</span>
+                          <Calendar size={16} className="text-gray-400" />
+                        </div>
+                      </div>
+                      <div className="p-3 hover:bg-gray-50 cursor-pointer" onClick={scrollToCalendar}>
+                        <div className="text-xs font-semibold text-gray-700 mb-1">CHECKOUT</div>
+                        <div className="font-medium text-gray-900">
+                          <span>
+                            {checkOutDate ? formatDate(checkOutDate) :
+                              location?.propertyDetails?.nightStay ? 'Select date' :
+                              checkInDate ? formatDate(checkInDate) : 'Select date'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <GuestSelector
+                      adults={adults}
+                      kids={kids}
+                      onGuestChange={handleGuestChange}
+                      showGuestSelector={showMobileGuestSelector}
+                      setShowGuestSelector={setShowMobileGuestSelector}
+                      maxCapacity={location.capacityOfPersons}
+                      onCalendarClick={scrollToCalendar}
+                      checkInDate={checkInDate}
+                      checkOutDate={checkOutDate}
+                      locationPricing={location.pricing}
+                      isDayPicnic={location?.propertyDetails?.nightStay === false || sameDayCheckout}
+                      totalPrice={totalPrice}
+                    />
+
+                    {showSameDayOption && (
+                      <div className="border-t border-gray-300 p-3">
+                        <label className="flex items-start sm:items-center cursor-pointer gap-3">
+                          <input
+                            type="checkbox"
+                            checked={sameDayCheckout}
+                            onChange={handleSameDayCheckoutToggle}
+                            className="w-4 h-4 text-[#008DDA] border-gray-300 rounded focus:ring-[#008DDA] mt-1 sm:mt-0"
+                          />
+                          <div>
+                            <div className="text-sm text-gray-900">Same-day checkout</div>
+                            <div className="text-xs text-gray-600">Checkout at 10:00 PM on same day (Day picnic)</div>
+                          </div>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4 mb-4">
+                    <div className="flex items-start gap-3 text-sm">
+                      <Users size={24} className={`${PRIMARY_COLOR_CLASS} shrink-0 mt-1`} />
+                      <div>
+                        <h4 className="font-semibold mb-1">Maximum Capacity</h4>
+                        <p className="text-gray-600">This location accommodates maximum <span className="font-bold">{location.capacityOfPersons} guest{location.capacityOfPersons !== 1 ? 's' : ''}</span>.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4 mb-4">
+                    <div className="flex items-start gap-3 text-sm mb-3">
+                      <Gift size={24} className={`${PRIMARY_COLOR_CLASS} shrink-0 mt-1`} />
+                      <div>
+                        <h4 className="font-semibold mb-1">Terms and Conditions</h4>
+                        <p className="text-gray-600 mb-3">Please read and accept our terms and conditions before proceeding.</p>
+                        <button onClick={() => setShowTermsModal(true)} className="text-[#008DDA] hover:text-[#0066a8] underline font-medium text-sm">
+                          Read Terms and Conditions
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleBookNow}
+                    disabled={adults + kids > location.capacityOfPersons || !checkInDate || (location?.propertyDetails?.nightStay && !checkOutDate && !sameDayCheckout) || !agreedToTerms}
+                    className="w-full bg-[#008DDA] text-white font-extrabold py-3.5 rounded-xl hover:bg-[#0066a8] transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                  >
+                    {adults + kids > location.capacityOfPersons
+                      ? `Maximum ${location.capacityOfPersons} guests allowed`
+                      : !agreedToTerms
+                      ? 'Accept Terms to Reserve'
+                      : 'Reserve Now'}
+                  </button>
+                </div>
+                <div className="mt-6 text-center">
+                  <button className="flex items-center gap-2 text-sm text-gray-600 hover:underline mx-auto">
+                    <Flag size={16} /> Report this listing
+                  </button>
                 </div>
               </div>
 
               {/* 3. Description */}
               <div className="pb-6 border-b border-gray-200">
-                <h3 className="font-semibold text-2xl mb-4 text-gray-900">
-                  About this Place
-                </h3>
-                <div className="space-y-4">
-                  <p
-                    className="text-gray-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeHTML(
-                        location.description || "No description available.",
-                      ),
-                    }}
-                  />
-                </div>
+                <h3 className="font-semibold text-2xl mb-4 text-gray-900">About this Place</h3>
+                <p className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHTML(location.description || 'No description available.') }} />
               </div>
 
               {/* 4. Amenities */}
               <div className="pb-6 border-b border-gray-200">
-                <h3 className="font-semibold text-2xl mb-6 text-gray-900">
-                  What this place offers
-                </h3>
+                <h3 className="font-semibold text-2xl mb-6 text-gray-900">What this place offers</h3>
                 <div className="grid sm:grid-cols-2 gap-4 mb-6">
                   {amenities.map((amenity, idx) => {
                     const IconComponent = amenity.icon;
                     return (
                       <div key={idx} className="flex items-center gap-3 py-2">
-                        <IconComponent
-                          size={20}
-                          className={`text-gray-700 flex-shrink-0 ${PRIMARY_COLOR_CLASS}`}
-                        />
-                        <span className="text-gray-800 font-medium">
-                          {amenity.name}
-                        </span>
+                        <IconComponent size={20} className={`text-gray-700 shrink-0 ${PRIMARY_COLOR_CLASS}`} />
+                        <span className="text-gray-800 font-medium">{amenity.name}</span>
                       </div>
                     );
                   })}
@@ -707,10 +981,8 @@ function LocationDetail() {
               </div>
 
               {/* 5. Calendar Section */}
-              <div className="pb-6 border-b border-gray-200">
-                <h3 className="font-semibold text-2xl mb-6 text-gray-900">
-                  Select Your Dates
-                </h3>
+              <div className="pb-6 border-b border-gray-200" ref={calendarRef}>
+                <h3 className="font-semibold text-2xl mb-6 text-gray-900">Select Your Dates</h3>
                 <Calenderdates
                   months={months}
                   currentMonth={currentMonth}
@@ -722,75 +994,50 @@ function LocationDetail() {
                   locationId={id}
                 />
                 <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={() => {
-                      setCheckInDate(null);
-                      setCheckOutDate(null);
-                      setSelectedDates([]);
-                    }}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
+                  <button onClick={handleClearDates} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
                     Clear dates
                   </button>
                 </div>
               </div>
 
               {/* 6. Reviews Section */}
-              <ReviewSection
-                reviews={reviews}
-                expandedReviews={expandedReviews}
-                onToggleReviewExpansion={toggleReviewExpansion}
-                locationId={id}
-              />
+              <ReviewSection reviews={reviews} expandedReviews={expandedReviews} onToggleReviewExpansion={toggleReviewExpansion} locationId={id} />
 
               {/* 7. Map Section */}
               {location && <LocationMap location={location} />}
             </div>
 
-            {/* RIGHT SECTION - Booking Card (Sticky) */}
-            <div className="lg:col-span-1">
-              <div className="lg:sticky lg:top-24">
-                <div className="bg-white border-2 border-gray-100 rounded-2xl shadow-2xl p-6 transition-shadow hover:shadow-3xl">
-                  {/* Booking Header (MODIFIED: PRICE REMOVED) */}
+            {/* RIGHT SECTION - Booking Card (desktop only) */}
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="lg:sticky lg:top-18">
+                <div className="bg-white border-2 border-gray-100 rounded-2xl shadow-2xl p-5">
                   <div className="flex items-center justify-center mb-4 pb-4 border-b border-gray-100">
-                    <div className="flex items-center">
-                      <span className="text-xl font-bold text-gray-900 mr-2">
-                        Check Availability
-                      </span>
-                    </div>
+                    <span className="text-xl font-bold text-gray-900 mr-2">Check Availability</span>
                     {totalReviews > 0 && (
                       <div className="flex items-center text-sm font-semibold ml-auto">
                         {renderStars(Math.round(averageRating))}
-                        <span className="ml-1 text-gray-800">
-                          {averageRating.toFixed(1)}
-                        </span>
+                        <span className="ml-1 text-gray-800">{averageRating.toFixed(1)}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Date & Guest Inputs */}
                   <div className="border border-gray-300 rounded-xl overflow-visible mb-4">
-                    <div className="grid grid-cols-2">
-                      <div className="border-r border-gray-300 p-3 hover:bg-gray-50 transition-colors">
-                        <div className="text-xs font-semibold text-gray-700 mb-1">
-                          CHECK-IN
-                        </div>
-                        <div className="font-medium text-gray-900">
-                          {checkInDate
-                            ? formatDate(checkInDate)
-                            : "Select date"}
+                    <div className="grid grid-cols-2 border-b border-gray-300">
+                      <div className="border-r border-gray-300 p-3 hover:bg-gray-50 cursor-pointer" onClick={scrollToCalendar}>
+                        <div className="text-xs font-semibold text-gray-700 mb-1">CHECK-IN</div>
+                        <div className="font-medium text-gray-900 flex justify-between">
+                          <span>{checkInDate ? formatDate(checkInDate) : 'Select date'}</span>
+                          <Calendar size={16} className="text-gray-400" />
                         </div>
                       </div>
-                      <div className="p-3 hover:bg-gray-50 transition-colors">
-                        <div className="text-xs font-semibold text-gray-700 mb-1">
-                          CHECKOUT
-                        </div>
+                      <div className="p-3 hover:bg-gray-50 cursor-pointer" onClick={scrollToCalendar}>
+                        <div className="text-xs font-semibold text-gray-700 mb-1">CHECKOUT</div>
                         <div className="font-medium text-gray-900">
-                          {checkOutDate
-                            ? formatDate(checkOutDate)
-                            : location?.propertyDetails?.nightStay
-                              ? "Select date"
-                              : "Next day"}
+                          <span>
+                            {checkOutDate ? formatDate(checkOutDate) :
+                              location?.propertyDetails?.nightStay ? 'Select date' :
+                              checkInDate ? formatDate(checkInDate) : 'Select date'}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -799,85 +1046,73 @@ function LocationDetail() {
                       adults={adults}
                       kids={kids}
                       onGuestChange={handleGuestChange}
-                      showGuestSelector={showGuestSelector}
-                      setShowGuestSelector={setShowGuestSelector}
+                      showGuestSelector={showDesktopGuestSelector}
+                      setShowGuestSelector={setShowDesktopGuestSelector}
                       maxCapacity={location.capacityOfPersons}
-                      ref={guestSelectorRef}
+                      onCalendarClick={scrollToCalendar}
+                      checkInDate={checkInDate}
+                      checkOutDate={checkOutDate}
+                      locationPricing={location.pricing}
+                      isDayPicnic={location?.propertyDetails?.nightStay === false || sameDayCheckout}
+                      totalPrice={totalPrice}
                     />
+
+                    {showSameDayOption && (
+                      <div className="border-t border-gray-300 p-3">
+                        <label className="flex items-start sm:items-center cursor-pointer gap-3">
+                          <input
+                            type="checkbox"
+                            checked={sameDayCheckout}
+                            onChange={handleSameDayCheckoutToggle}
+                            className="w-4 h-4 text-[#008DDA] border-gray-300 rounded focus:ring-[#008DDA] mt-1 sm:mt-0"
+                          />
+                          <div>
+                            <div className="text-sm text-gray-900">Same-day checkout</div>
+                            <div className="text-xs text-gray-600">Checkout at 10:00 PM on same day (Day picnic)</div>
+                          </div>
+                        </label>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Capacity Info - REPLACED SECTION */}
                   <div className="border-t border-gray-200 pt-4 mb-4">
                     <div className="flex items-start gap-3 text-sm">
-                      <Users
-                        size={24}
-                        className={`${PRIMARY_COLOR_CLASS} flex-shrink-0 mt-1`}
-                      />
+                      <Users size={24} className={`${PRIMARY_COLOR_CLASS} shrink-0 mt-1`} />
                       <div>
-                        <h4 className="font-semibold mb-1 text-gray-900">
-                          Maximum Capacity
-                        </h4>
-                        <p className="text-gray-600">
-                          This location accommodates maximum{" "}
-                          <span className="font-bold">
-                            {location.capacityOfPersons} guest
-                            {location.capacityOfPersons !== 1 ? "s" : ""}
-                          </span>
-                          .
-                        </p>
+                        <h4 className="font-semibold mb-1">Maximum Capacity</h4>
+                        <p className="text-gray-600">This location accommodates maximum <span className="font-bold">{location.capacityOfPersons} guest{location.capacityOfPersons !== 1 ? 's' : ''}</span>.</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Terms and Conditions Section */}
                   <div className="border-t border-gray-200 pt-4 mb-4">
                     <div className="flex items-start gap-3 text-sm mb-3">
-                      <Gift
-                        size={24}
-                        className={`${PRIMARY_COLOR_CLASS} flex-shrink-0 mt-1`}
-                      />
+                      <Gift size={24} className={`${PRIMARY_COLOR_CLASS} shrink-0 mt-1`} />
                       <div>
-                        <h4 className="font-semibold mb-1 text-gray-900">
-                          Terms and Conditions
-                        </h4>
-                        <p className="text-gray-600 mb-3">
-                          Please read and accept our terms and conditions before
-                          proceeding with your reservation.
-                        </p>
-                        <button
-                          onClick={() => setShowTermsModal(true)}
-                          className="text-[#008DDA] hover:text-[#0066a8] underline font-medium text-sm transition-colors"
-                        >
+                        <h4 className="font-semibold mb-1">Terms and Conditions</h4>
+                        <p className="text-gray-600 mb-3">Please read and accept our terms and conditions before proceeding.</p>
+                        <button onClick={() => setShowTermsModal(true)} className="text-[#008DDA] hover:text-[#0066a8] underline font-medium text-sm">
                           Read Terms and Conditions
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* CTA Button - Now depends on terms agreement */}
                   <button
                     onClick={handleBookNow}
-                    disabled={
-                      adults + kids > location.capacityOfPersons ||
-                      !checkInDate ||
-                      (location?.propertyDetails?.nightStay && !checkOutDate) ||
-                      !agreedToTerms
-                    }
-                    className={`w-full bg-[#008DDA] text-white font-extrabold py-3.5 rounded-xl hover:bg-[#0066a8] transition-all duration-300 mb-4 
-                             shadow-lg shadow-blue-200 transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed`}
+                    disabled={adults + kids > location.capacityOfPersons || !checkInDate || (location?.propertyDetails?.nightStay && !checkOutDate && !sameDayCheckout) || !agreedToTerms}
+                    className="w-full bg-[#008DDA] text-white font-extrabold py-3.5 rounded-xl hover:bg-[#0066a8] transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4"
                   >
                     {adults + kids > location.capacityOfPersons
                       ? `Maximum ${location.capacityOfPersons} guests allowed`
                       : !agreedToTerms
-                        ? "Accept Terms to Reserve"
-                        : "Reserve Now"}
+                      ? 'Accept Terms to Reserve'
+                      : 'Reserve Now'}
                   </button>
                 </div>
-
                 <div className="mt-6 text-center">
                   <button className="flex items-center gap-2 text-sm text-gray-600 hover:underline mx-auto">
-                    <Flag size={16} />
-                    Report this listing
+                    <Flag size={16} /> Report this listing
                   </button>
                 </div>
               </div>
@@ -885,7 +1120,6 @@ function LocationDetail() {
           </div>
         </main>
 
-        {/* Booking Modal */}
         <BookingModal
           showBookingModal={showBookingModal}
           setShowBookingModal={setShowBookingModal}
@@ -897,6 +1131,18 @@ function LocationDetail() {
           adults={adults}
           kids={kids}
           location={location}
+          totalPrice={totalPrice}
+          sameDayCheckout={sameDayCheckout}
+        />
+
+        <PoolPartyModal
+          isOpen={showPoolPartyModal}
+          onClose={() => setShowPoolPartyModal(false)}
+          location={location}
+          adults={adults}
+          kids={kids}
+          onAdultsChange={setAdults}
+          onKidsChange={setKids}
         />
       </div>
       <Footer />
@@ -904,4 +1150,4 @@ function LocationDetail() {
   );
 }
 
-export default LocationDetail;
+export default React.memo(LocationDetail);

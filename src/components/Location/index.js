@@ -4,12 +4,6 @@ import GuestSelector from "./GuestSelector";
 import ImageGallery from "./ImageGallery";
 import LocationMap from "./LocationMap";
 import ReviewSection from "./ReviewSection";
+import PoolPartyModal from "./PoolPartyModal";
 
-export {
-  BookingModal,
-  Calenderdates,
-  GuestSelector,
-  ImageGallery,
-  LocationMap,
-  ReviewSection,
-};
+export {BookingModal, Calenderdates, GuestSelector, ImageGallery, LocationMap, ReviewSection, PoolPartyModal};

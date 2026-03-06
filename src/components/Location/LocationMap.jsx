@@ -1,25 +1,25 @@
-import { MapPin, Flag, Navigation } from "lucide-react";
+import { MapPin, Flag, Navigation } from 'lucide-react';
+import React, { useCallback, useMemo } from 'react';
 
 const LocationMap = ({ location }) => {
-  // Get coordinates from the nested structure
-  const latitude = location?.coordinates?.lat;
-  const longitude = location?.coordinates?.lng;
-  const address = location?.address;
+  // Memoized coordinate values
+  const latitude = useMemo(() => location?.coordinates?.lat, [location]);
+  const longitude = useMemo(() => location?.coordinates?.lng, [location]);
+  const address = useMemo(() => location?.address, [location]);
 
-  // Generate OpenStreetMap link
-  const generateOSMLink = () => {
-    if (!latitude || !longitude) return "#";
+  // Stable link generators
+  const generateOSMLink = useCallback(() => {
+    if (!latitude || !longitude) return '#';
     return `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}&zoom=17`;
-  };
+  }, [latitude, longitude]);
 
-  // Generate Google Maps link (alternative option)
-  const generateGoogleMapsLink = () => {
-    if (!latitude || !longitude) return "#";
+  const generateGoogleMapsLink = useCallback(() => {
+    if (!latitude || !longitude) return '#';
     return `https://www.google.com/maps?q=${latitude},${longitude}&z=17`;
-  };
+  }, [latitude, longitude]);
 
-  // ✅ Updated map embed for proper zoom & centering
-  const renderMap = () => {
+  // Memoized map iframe – only recalculates when coordinates change
+  const mapIframe = useMemo(() => {
     if (!latitude || !longitude) {
       return (
         <div className="w-full h-100 bg-gray-100 flex items-center justify-center">
@@ -31,7 +31,6 @@ const LocationMap = ({ location }) => {
       );
     }
 
-    // ✅ Use /map.html with zoom parameter for reliable zoomed-in view
     return (
       <iframe
         width="100%"
@@ -40,33 +39,24 @@ const LocationMap = ({ location }) => {
         scrolling="no"
         marginHeight="0"
         marginWidth="0"
-        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.0008},${latitude - 0.0008},${longitude + 0.0008},${latitude + 0.0008}&layer=mapnik&marker=${latitude},${longitude}`}
+        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.005},${latitude - 0.005},${longitude + 0.005},${latitude + 0.005}&layer=mapnik&marker=${latitude},${longitude}&zoom=16`}
         className="h-96 w-full"
         title="Location Map"
       />
     );
-  };
+  }, [latitude, longitude]);
 
-  const formatAddress = () => {
-    if (!address) return "Address information not available";
-
+  // Memoized address formatter
+  const formattedAddress = useMemo(() => {
+    if (!address) return 'Address information not available';
     const parts = [];
     if (address.line1) parts.push(address.line1);
     if (address.line2) parts.push(address.line2);
     if (address.city) parts.push(address.city);
     if (address.state) parts.push(address.state);
     if (address.pincode) parts.push(address.pincode);
-
-    return parts.join(", ") || "Address information not available";
-  };
-
-  // Sample nearby places - you can replace with actual data from your API
-  const nearbyPlaces = [
-    "Sursagar Lake",
-    "Waghodia Road",
-    "Vadodara City Center",
-    "Local Markets",
-  ];
+    return parts.join(', ') || 'Address information not available';
+  }, [address]);
 
   return (
     <div className="mt-16 border-t border-gray-200 pt-12 w-full">
@@ -78,9 +68,9 @@ const LocationMap = ({ location }) => {
           <div className="border border-gray-200 rounded-xl overflow-hidden mx-6">
             {/* Map Container */}
             <div className="relative bg-gray-100 w-full">
-              {renderMap()}
+              {mapIframe}
 
-              {/* Fallback marker when no location */}
+              {/* Location Pin for static view */}
               {!latitude || !longitude ? (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <div className="flex flex-col items-center">
@@ -141,4 +131,4 @@ const LocationMap = ({ location }) => {
   );
 };
 
-export default LocationMap;
+export default React.memo(LocationMap);
